@@ -28,7 +28,7 @@ export function ThemeToggle() {
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       aria-label="Toggle theme"
     >
-      <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="h-5 w-5 text-foreground" />
+      <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="h-5 w-5" />
     </Button>
   );
 }

@@ -102,9 +102,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             </div>
             <div className="flex-1">
               <p className="font-medium text-sm">Usuário Pro</p>
-              <p className="text-xs text-muted-foreground">flux@consultoria.ia</p>
+              <p className="text-xs text-gray-400">flux@consultoria.ia</p>
             </div>
-            <FontAwesomeIcon icon={faEllipsisV} className="text-muted-foreground" />
+            <FontAwesomeIcon icon={faEllipsisV} className="text-gray-400" />
           </div>
         </div>
       </div>

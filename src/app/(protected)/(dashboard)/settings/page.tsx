@@ -23,7 +23,7 @@ export default function SettingsPage() {
             <div className="space-y-2">
               <label
                 htmlFor="org-name"
-                className="text-sm font-medium text-muted-foreground"
+                className="text-sm font-medium text-gray-300"
               >
                 Nome da Organização
               </label>
@@ -36,7 +36,7 @@ export default function SettingsPage() {
             <div className="space-y-2">
               <label
                 htmlFor="main-email"
-                className="text-sm font-medium text-muted-foreground"
+                className="text-sm font-medium text-gray-300"
               >
                 Email Principal
               </label>
@@ -51,7 +51,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <label
               htmlFor="timezone"
-              className="text-sm font-medium text-muted-foreground"
+              className="text-sm font-medium text-gray-300"
             >
               Fuso Horário
             </label>
