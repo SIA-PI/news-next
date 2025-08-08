@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import StatCard from '@/components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
@@ -26,6 +26,7 @@ import {
   Legend,
   ChartOptions,
 } from 'chart.js';
+import { useTheme } from 'next-themes';
 
 ChartJS.register(
   LineElement, PointElement, LinearScale, CategoryScale,
@@ -68,52 +69,60 @@ const doughnutData: ChartDataType = {
     }],
 };
 
-// --- CONFIGURAÇÃO DE ESTILO DOS GRÁFICOS ---
-const lineChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#cbd5e1',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-      }
+const getLineChartOptions = (theme: string | undefined): ChartOptions<'line'> => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+      titleColor: theme === 'dark' ? '#ffffff' : '#334155',
+      bodyColor: theme === 'dark' ? '#cbd5e1' : '#64748b',
+      borderColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+      borderWidth: 1,
     },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { color: '#9ca3af' },
-      },
-      y: {
-        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-        ticks: { color: '#9ca3af' },
-      },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { color: theme === 'dark' ? '#9ca3af' : '#64748b' },
     },
-};
+    y: {
+      grid: { color: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+      ticks: { color: theme === 'dark' ? '#9ca3af' : '#64748b' },
+    },
+  },
+});
 
-const doughnutChartOptions: ChartOptions<'doughnut'> = {
+const getDoughnutChartOptions = (theme: string | undefined): ChartOptions<'doughnut'> => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       display: true,
       position: 'bottom',
-      labels: { color: '#9ca3af' },
+      labels: { color: theme === 'dark' ? '#9ca3af' : '#64748b' },
     },
     tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.8)',
-      titleColor: '#ffffff',
-      bodyColor: '#cbd5e1',
-      borderColor: 'rgba(255, 255, 255, 0.1)',
+      backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+      titleColor: theme === 'dark' ? '#ffffff' : '#334155',
+      bodyColor: theme === 'dark' ? '#cbd5e1' : '#64748b',
+      borderColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
       borderWidth: 1,
-    }
+    },
   },
-};
+});
 
 export default function DashboardPage() {
+  const { theme } = useTheme();
+  const [lineChartOptions, setLineChartOptions] = useState(getLineChartOptions(theme));
+  const [doughnutChartOptions, setDoughnutChartOptions] = useState(getDoughnutChartOptions(theme));
+
+  useEffect(() => {
+    setLineChartOptions(getLineChartOptions(theme));
+    setDoughnutChartOptions(getDoughnutChartOptions(theme));
+  }, [theme]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       document.querySelectorAll('.stat-card').forEach((card, index) => {

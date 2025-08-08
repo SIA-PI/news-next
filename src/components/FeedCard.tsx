@@ -26,27 +26,27 @@ export default function FeedCard({
             </div>
             <div>
               <h4 className="font-semibold">{title}</h4>
-              <p className="text-sm text-gray-400">{count} artigos hoje</p>
+              <p className="text-sm text-muted-foreground">{count} artigos hoje</p>
             </div>
           </div>
-          <button className="text-gray-400 hover:text-white">
+          <button className="text-muted-foreground hover:text-foreground">
             <FontAwesomeIcon icon={faEllipsisV} />
           </button>
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Status:</span>
+            <span className="text-muted-foreground">Status:</span>
             <span className={`${status.cls} flex items-center gap-1`}>
               <FontAwesomeIcon icon={status.icon} className="text-xs" />
               {status.text}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Última atualização:</span>
+            <span className="text-muted-foreground">Última atualização:</span>
             <span>{last}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Webhook:</span>
+            <span className="text-muted-foreground">Webhook:</span>
             <span className={webhook.cls}>{webhook.text}</span>
           </div>
         </div>

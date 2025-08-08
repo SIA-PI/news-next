@@ -27,7 +27,7 @@ export default function HelpCard({
         <FontAwesomeIcon icon={icon} className={`${text} text-2xl`} />
       </div>
       <h4 className="font-semibold mb-2">{title}</h4>
-      <p className="text-gray-400 text-sm mb-4">{desc}</p>
+      <p className="text-muted-foreground text-sm mb-4">{desc}</p>
       <Button variant="ghost" className={`${text} hover:opacity-80`}>
         {action}
       </Button>

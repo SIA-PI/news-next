@@ -25,7 +25,7 @@ export default function RootLayout({
       className={spaceGrotesk.variable}
       suppressHydrationWarning
     >
-      <body>
+      <body className="gradient-bg">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

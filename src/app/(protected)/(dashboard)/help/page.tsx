@@ -75,7 +75,7 @@ export default function HelpPage() {
                       <span className="font-medium">{q}</span>
                       <FontAwesomeIcon
                         icon={faChevronDown}
-                        className="text-gray-400"
+                        className="text-muted-foreground"
                       />
                     </button>
                   </div>
@@ -102,7 +102,7 @@ export default function HelpPage() {
                       key={service.name}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-gray-400">{service.name}</span>
+                      <span className="text-muted-foreground">{service.name}</span>
                       <span
                         className={
                           service.isOperational

@@ -208,7 +208,7 @@ export default function GeneratorPage() {
             <div className="space-y-2">
               <label
                 htmlFor="topic-input"
-                className="text-sm font-medium text-gray-300 flex items-center gap-2"
+                className="text-sm font-medium text-muted-foreground flex items-center gap-2"
               >
                 <FontAwesomeIcon icon={faSearch} className="text-indigo-400" />{' '}
                 Tópico
@@ -223,7 +223,7 @@ export default function GeneratorPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <FontAwesomeIcon icon={faGlobe} className="text-cyan-400" />{' '}
                   País
                 </label>
@@ -257,7 +257,7 @@ export default function GeneratorPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <FontAwesomeIcon
                     icon={faLanguage}
                     className="text-purple-400"
@@ -281,7 +281,7 @@ export default function GeneratorPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <FontAwesomeIcon
                     icon={faCalendar}
                     className="text-orange-400"

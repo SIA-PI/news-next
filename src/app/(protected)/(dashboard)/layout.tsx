@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="gradient-bg min-h-screen text-white overflow-x-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none"></div>
 
       <button

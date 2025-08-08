@@ -22,7 +22,7 @@ export default function StatCard({
           <span className="text-xs text-green-400">{trend}</span>
         </div>
         <h3 className="text-2xl font-bold mb-1">{value}</h3>
-        <p className="text-gray-400 text-sm">{label}</p>
+        <p className="text-muted-foreground text-sm">{label}</p>
       </CardContent>
     </Card>
   );
