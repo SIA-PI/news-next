@@ -42,7 +42,7 @@ export default function Header({ online }: HeaderProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{meta.title}</h2>
-          <p className="text-gray-400 text-sm">{meta.subtitle}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">{meta.subtitle}</p>
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />

@@ -13,7 +13,7 @@ const buttonVariants = cva(
           'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white',
         secondary: 'bg-cyan-500 hover:bg-cyan-600 text-white',
         danger: 'bg-red-500 hover:bg-red-600 text-white',
-        ghost: 'bg-white/10 hover:bg-white/20 text-white',
+        ghost: 'bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 text-foreground',
       },
       size: {
         default: 'py-3 px-6',

@@ -1,53 +1,65 @@
 @import 'tailwindcss';
 
 @layer base {
-  body {
-    @apply font-sans;
-  }
-
-  /* :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 210 40% 96.1%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+  :root {
+    --background-start-rgb: 240, 245, 255;
+    --background-end-rgb: 255, 255, 255;
+    --foreground-rgb: 30, 41, 59;
+    --glass-bg-rgb: 255, 255, 255;
+    --glass-border-rgb: 0, 0, 0;
+    --glass-opacity: 0.4;
+    --glass-border-opacity: 0.1;
+    --sidebar-bg-rgb: 248, 250, 252;
+    --sidebar-bg-opacity: 0.9;
+    --text-color: #334155;
+    --text-muted-color: #64748b;
+    --card-bg-color: rgba(255, 255, 255, 0.5);
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
+    --background-start-rgb: 15, 23, 42;
+    --background-end-rgb: 51, 65, 85;
+    --foreground-rgb: 255, 255, 255;
+    --glass-bg-rgb: 255, 255, 255;
+    --glass-border-rgb: 255, 255, 255;
+    --glass-opacity: 0.05;
+    --glass-border-opacity: 0.1;
+    --sidebar-bg-rgb: 15, 23, 42;
+    --sidebar-bg-opacity: 0.9;
+    --text-color: #ffffff;
+    --text-muted-color: #9ca3af;
+    --card-bg-color: rgba(255, 255, 255, 0.05);
+  }
 
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-
-    --primary: 213 31% 91%;
-    --primary-foreground: 222.2 84% 4.9%;
-  } */
+  body {
+    @apply font-sans text-[var(--text-color)];
+  }
 }
 
 .gradient-bg {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 100%);
+  background: linear-gradient(
+    135deg,
+    rgb(var(--background-start-rgb)) 0%,
+    rgb(var(--background-end-rgb)) 100%
+  );
 }
 
 .glassmorphism {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--glass-bg-rgb), var(--glass-opacity));
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--glass-border-rgb), var(--glass-border-opacity));
 }
 
 .glassmorphism-strong {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(var(--glass-bg-rgb), calc(var(--glass-opacity) + 0.03));
   backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(var(--glass-border-rgb), calc(var(--glass-border-opacity) + 0.05));
 }
 
 .sidebar-glassmorphism {
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(var(--sidebar-bg-rgb), var(--sidebar-bg-opacity));
   backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(var(--glass-border-rgb), var(--glass-border-opacity));
 }
 
 @keyframes float {
