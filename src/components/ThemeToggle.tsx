@@ -24,11 +24,14 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="sm"
-      className="!transform-none !bg-transparent"
+      className="!transform-none !bg-transparent hover:bg-[rgb(var(--muted))]/50 transition-colors"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       aria-label="Toggle theme"
     >
-      <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="h-5 w-5" />
+      <FontAwesomeIcon 
+        icon={isDark ? faSun : faMoon} 
+        className="h-5 w-5 text-[rgb(var(--text-primary))]" 
+      />
     </Button>
   );
 }

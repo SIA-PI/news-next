@@ -25,35 +25,35 @@ export default function FeedCard({
               <FontAwesomeIcon icon={icon} className={text} />
             </div>
             <div>
-              <h4 className="font-semibold">{title}</h4>
-              <p className="text-sm text-gray-400">{count} artigos hoje</p>
+              <h4 className="font-semibold text-[rgb(var(--text-primary))]">{title}</h4>
+              <p className="text-sm text-[rgb(var(--text-muted))]">{count} artigos hoje</p>
             </div>
           </div>
-          <button className="text-gray-400 hover:text-white">
+          <button className="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-colors">
             <FontAwesomeIcon icon={faEllipsisV} />
           </button>
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Status:</span>
+            <span className="text-[rgb(var(--text-muted))]">Status:</span>
             <span className={`${status.cls} flex items-center gap-1`}>
               <FontAwesomeIcon icon={status.icon} className="text-xs" />
               {status.text}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Última atualização:</span>
-            <span>{last}</span>
+            <span className="text-[rgb(var(--text-muted))]">Última atualização:</span>
+            <span className="text-[rgb(var(--text-primary))]">{last}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Webhook:</span>
+            <span className="text-[rgb(var(--text-muted))]">Webhook:</span>
             <span className={webhook.cls}>{webhook.text}</span>
           </div>
         </div>
         {progress ? (
           <div className="progress-bar h-1 rounded-full mt-4" />
         ) : (
-          <div className="bg-gray-600 h-1 rounded-full mt-4" />
+          <div className="bg-[rgb(var(--muted))] h-1 rounded-full mt-4" />
         )}
       </CardContent>
     </Card>

@@ -19,10 +19,10 @@ export default function StatCard({
           >
             <FontAwesomeIcon icon={icon} className={`${text} text-xl`} />
           </div>
-          <span className="text-xs text-green-400">{trend}</span>
+          <span className="text-xs status-online">{trend}</span>
         </div>
-        <h3 className="text-2xl font-bold mb-1">{value}</h3>
-        <p className="text-gray-400 text-sm">{label}</p>
+        <h3 className="text-2xl font-bold mb-1 text-[rgb(var(--text-primary))]">{value}</h3>
+        <p className="text-[rgb(var(--text-muted))] text-sm">{label}</p>
       </CardContent>
     </Card>
   );

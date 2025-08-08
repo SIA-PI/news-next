@@ -23,13 +23,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="gradient-bg min-h-screen text-white overflow-x-hidden">
+    <div className="gradient-bg min-h-screen text-[rgb(var(--text-primary))] overflow-x-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none"></div>
 
       <button
         aria-label="Abrir menu"
         onClick={() => setMobileMenuOpen(true)}
-        className="fixed top-4 left-4 z-50 lg:hidden glassmorphism p-3 rounded-xl text-white"
+        className="fixed top-4 left-4 z-50 lg:hidden glassmorphism p-3 rounded-xl text-[rgb(var(--text-primary))]"
       >
         <i className="fas fa-bars text-lg" />
       </button>

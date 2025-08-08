@@ -50,14 +50,14 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       <div className="p-6 h-full flex flex-col">
         {/* Header da Sidebar */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-xl flex items-center justify-center pulse-glow">
+          <div className="w-12 h-12 bg-gradient-to-r from-[rgb(var(--primary))] to-cyan-400 rounded-xl flex items-center justify-center pulse-glow">
             <FontAwesomeIcon icon={faRss} className="text-white text-xl" />
           </div>
           <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-[rgb(var(--text-primary))] to-[rgb(var(--text-secondary))] bg-clip-text text-transparent">
               NewsPulse
             </h1>
-            <p className="text-xs text-gray-400">Dashboard v2.0</p>
+            <p className="text-xs text-[rgb(var(--text-muted))]">Dashboard v2.0</p>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <nav className="space-y-2">
           {menuItems.map((item, idx) =>
             item.divider ? (
-              <hr key={`hr-${idx}`} className="border-white/10 my-4" />
+              <hr key={`hr-${idx}`} className="border-[rgb(var(--border))]/20 my-4" />
             ) : (
               <Link key={item.to} href={item.to!} passHref>
                 <div
@@ -82,8 +82,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                   {item.chip && (
                     <span
                       className={`ml-auto text-xs ${
-                        item.chipColor ? item.chipColor : 'bg-indigo-500'
-                      } px-2 py-1 rounded-full`}
+                        item.chipColor ? item.chipColor : 'bg-[rgb(var(--primary))]'
+                      } px-2 py-1 rounded-full text-white`}
                     >
                       {item.chip}
                     </span>
@@ -101,10 +101,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <FontAwesomeIcon icon={faUser} className="text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-sm">Usuário Pro</p>
-              <p className="text-xs text-gray-400">flux@consultoria.ia</p>
+              <p className="font-medium text-sm text-[rgb(var(--text-primary))]">Usuário Pro</p>
+              <p className="text-xs text-[rgb(var(--text-muted))]">flux@consultoria.ia</p>
             </div>
-            <FontAwesomeIcon icon={faEllipsisV} className="text-gray-400" />
+            <FontAwesomeIcon icon={faEllipsisV} className="text-[rgb(var(--text-muted))]" />
           </div>
         </div>
       </div>

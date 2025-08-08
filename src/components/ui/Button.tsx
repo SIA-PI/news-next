@@ -4,16 +4,16 @@ import { forwardRef } from 'react';
 import { Slot } from './Slot';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none',
+  'inline-flex items-center justify-center rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] disabled:opacity-50 disabled:pointer-events-none',
   {
     variants: {
       variant: {
-        default: 'bg-indigo-500 hover:bg-indigo-600 text-white',
+        default: 'bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90 text-white',
         primary:
-          'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white',
-        secondary: 'bg-cyan-500 hover:bg-cyan-600 text-white',
-        danger: 'bg-red-500 hover:bg-red-600 text-white',
-        ghost: 'bg-white/10 hover:bg-white/20 text-white',
+          'bg-gradient-to-r from-[rgb(var(--primary))] to-purple-600 hover:from-[rgb(var(--primary))]/90 hover:to-purple-700 text-white',
+        secondary: 'bg-[rgb(var(--secondary))] hover:bg-[rgb(var(--secondary))]/80 text-[rgb(var(--secondary-foreground))]',
+        danger: 'bg-[rgb(var(--destructive))] hover:bg-[rgb(var(--destructive))]/90 text-white',
+        ghost: 'bg-transparent hover:bg-[rgb(var(--muted))]/50 text-[rgb(var(--text-primary))]',
       },
       size: {
         default: 'py-3 px-6',

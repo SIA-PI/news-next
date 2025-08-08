@@ -26,12 +26,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
           {children}
         </ThemeProvider>
       </body>

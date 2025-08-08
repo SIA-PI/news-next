@@ -12,8 +12,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const helpCards = [
   {
     icon: faBook,
-    bg: 'bg-indigo-500/20',
-    text: 'text-indigo-400',
+    bg: 'bg-[rgb(var(--primary))]/20',
+    text: 'text-[rgb(var(--primary))]',
     title: 'Documentação',
     desc: 'Guias completos e referência da API',
     action: 'Ver Docs →',
@@ -21,7 +21,7 @@ const helpCards = [
   {
     icon: faVideo,
     bg: 'bg-green-500/20',
-    text: 'text-green-400',
+    text: 'text-green-500',
     title: 'Tutoriais',
     desc: 'Vídeos passo a passo',
     action: 'Assistir →',
@@ -29,7 +29,7 @@ const helpCards = [
   {
     icon: faHeadset,
     bg: 'bg-purple-500/20',
-    text: 'text-purple-400',
+    text: 'text-purple-500',
     title: 'Suporte',
     desc: 'Fale com nossa equipe',
     action: 'Contatar →',
@@ -67,15 +67,15 @@ export default function HelpPage() {
           <div className="space-y-6">
             {/* Perguntas Frequentes */}
             <div>
-              <h4 className="font-semibold mb-4">Perguntas Frequentes</h4>
+              <h4 className="font-semibold mb-4 text-[rgb(var(--text-primary))]">Perguntas Frequentes</h4>
               <div className="space-y-4">
                 {faqQuestions.map((q) => (
                   <div key={q} className="glassmorphism-strong rounded-xl p-4">
                     <button className="w-full text-left flex items-center justify-between">
-                      <span className="font-medium">{q}</span>
+                      <span className="font-medium text-[rgb(var(--text-primary))]">{q}</span>
                       <FontAwesomeIcon
                         icon={faChevronDown}
-                        className="text-gray-400"
+                        className="text-[rgb(var(--text-muted))]"
                       />
                     </button>
                   </div>
@@ -85,13 +85,13 @@ export default function HelpPage() {
 
             {/* Status do Sistema */}
             <div>
-              <h4 className="font-semibold mb-4">Status do Sistema</h4>
+              <h4 className="font-semibold mb-4 text-[rgb(var(--text-primary))]">Status do Sistema</h4>
               <div className="glassmorphism-strong rounded-xl p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h5 className="font-medium">
+                  <h5 className="font-medium text-[rgb(var(--text-primary))]">
                     Todos os Sistemas Operacionais
                   </h5>
-                  <span className="text-green-400 flex items-center gap-2">
+                  <span className="status-online flex items-center gap-2">
                     <FontAwesomeIcon icon={faCircle} className="text-xs" />
                     Online
                   </span>
@@ -102,12 +102,12 @@ export default function HelpPage() {
                       key={service.name}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-gray-400">{service.name}</span>
+                      <span className="text-[rgb(var(--text-muted))]">{service.name}</span>
                       <span
                         className={
                           service.isOperational
-                            ? 'text-green-400'
-                            : 'text-yellow-400'
+                            ? 'status-online'
+                            : 'status-offline'
                         }
                       >
                         {service.isOperational ? 'Operacional' : 'Manutenção'}

@@ -1,30 +1,34 @@
 "use client";
 
-import { useEffect } from 'react';
 import StatCard from '@/components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import {
-  StatCardType,
   ActivityItemType,
   ChartDataType,
+  StatCardType,
 } from '@/types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faRss, faDownload, faLink, faCheckCircle,
-  faPlus, faSync, faRobot
+  faCheckCircle,
+  faDownload, faLink,
+  faPlus,
+  faRobot,
+  faRss,
+  faSync
 } from '@fortawesome/free-solid-svg-icons';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect } from 'react';
+import { Doughnut, Line } from 'react-chartjs-2';
 
 import {
+  ArcElement,
+  CategoryScale,
   Chart as ChartJS,
+  ChartOptions,
+  Legend,
+  LinearScale,
   LineElement,
   PointElement,
-  LinearScale,
-  CategoryScale,
-  ArcElement,
   Tooltip,
-  Legend,
-  ChartOptions,
 } from 'chart.js';
 
 ChartJS.register(
@@ -32,18 +36,17 @@ ChartJS.register(
   ArcElement, Tooltip, Legend
 );
 
-// --- Dados Mockados (sem alterações) ---
 const statCards: StatCardType[] = [
-    { icon: faRss, bg: 'bg-indigo-500/20', text: 'text-indigo-400', value: '24', label: 'Feeds Ativos', trend: '+12%' },
-    { icon: faDownload, bg: 'bg-cyan-500/20', text: 'text-cyan-400', value: '1.2K', label: 'Artigos Hoje', trend: '+5.2%' },
-    { icon: faLink, bg: 'bg-purple-500/20', text: 'text-purple-400', value: '8', label: 'Webhooks', trend: '+8.1%' },
-    { icon: faCheckCircle, bg: 'bg-green-500/20', text: 'text-green-400', value: '100%', label: 'Uptime', trend: '99.9%' }
+    { icon: faRss, bg: 'bg-[rgb(var(--primary))]/20', text: 'text-[rgb(var(--primary))]', value: '24', label: 'Feeds Ativos', trend: '+12%' },
+    { icon: faDownload, bg: 'bg-cyan-500/20', text: 'text-cyan-500', value: '1.2K', label: 'Artigos Hoje', trend: '+5.2%' },
+    { icon: faLink, bg: 'bg-purple-500/20', text: 'text-purple-500', value: '8', label: 'Webhooks', trend: '+8.1%' },
+    { icon: faCheckCircle, bg: 'bg-green-500/20', text: 'text-green-500', value: '100%', label: 'Uptime', trend: '99.9%' }
 ];
 
 const recentActivities: ActivityItemType[] = [
-    { icon: faPlus, bg: 'bg-green-500/20', text: 'text-green-400', title: 'Novo feed criado: "Tecnologia Brasil"', time: 'Há 2 minutos' },
-    { icon: faSync, bg: 'bg-blue-500/20', text: 'text-blue-400', title: 'Feed atualizado: 156 novos artigos', time: 'Há 5 minutos' },
-    { icon: faRobot, bg: 'bg-purple-500/20', text: 'text-purple-400', title: 'Automação executada com sucesso', time: 'Há 10 minutos' },
+    { icon: faPlus, bg: 'bg-green-500/20', text: 'text-green-500', title: 'Novo feed criado: "Tecnologia Brasil"', time: 'Há 2 minutos' },
+    { icon: faSync, bg: 'bg-blue-500/20', text: 'text-blue-500', title: 'Feed atualizado: 156 novos artigos', time: 'Há 5 minutos' },
+    { icon: faRobot, bg: 'bg-purple-500/20', text: 'text-purple-500', title: 'Automação executada com sucesso', time: 'Há 10 minutos' },
 ];
 
 const lineData: ChartDataType = {
@@ -68,7 +71,6 @@ const doughnutData: ChartDataType = {
     }],
 };
 
-// --- CONFIGURAÇÃO DE ESTILO DOS GRÁFICOS ---
 const lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -80,16 +82,29 @@ const lineChartOptions: ChartOptions<'line'> = {
         bodyColor: '#cbd5e1',
         borderColor: 'rgba(255, 255, 255, 0.1)',
         borderWidth: 1,
+        cornerRadius: 8,
+        displayColors: false,
       }
     },
     scales: {
       x: {
-        grid: { display: false },
-        ticks: { color: '#9ca3af' },
+        grid: { 
+          display: false,
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: { 
+          color: '#9ca3af',
+          font: { size: 12 }
+        },
       },
       y: {
-        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-        ticks: { color: '#9ca3af' },
+        grid: { 
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: { 
+          color: '#9ca3af',
+          font: { size: 12 }
+        },
       },
     },
 };
@@ -101,7 +116,12 @@ const doughnutChartOptions: ChartOptions<'doughnut'> = {
     legend: {
       display: true,
       position: 'bottom',
-      labels: { color: '#9ca3af' },
+      labels: { 
+        color: '#9ca3af',
+        font: { size: 12 },
+        usePointStyle: true,
+        padding: 20
+      },
     },
     tooltip: {
       backgroundColor: 'rgba(15, 23, 42, 0.8)',
@@ -109,6 +129,7 @@ const doughnutChartOptions: ChartOptions<'doughnut'> = {
       bodyColor: '#cbd5e1',
       borderColor: 'rgba(255, 255, 255, 0.1)',
       borderWidth: 1,
+      cornerRadius: 8,
     }
   },
 };
@@ -165,8 +186,8 @@ export default function DashboardPage() {
                 <FontAwesomeIcon icon={item.icon} className={`${item.text} text-sm`} />
               </div>
               <div className="flex-1">
-                <p className="font-medium">{item.title}</p>
-                <p className="text-gray-400 text-sm">{item.time}</p>
+                <p className="font-medium text-[rgb(var(--text-primary))]">{item.title}</p>
+                <p className="text-[rgb(var(--text-muted))] text-sm">{item.time}</p>
               </div>
             </div>
           ))}
