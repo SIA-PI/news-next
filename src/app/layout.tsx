@@ -1,6 +1,9 @@
+import AuthProvider from '@/components/providers/AuthProvider';
+import QueryProvider from '@/components/providers/QueryProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import type { Metadata } from 'next';
 import { Space_Grotesk } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -25,11 +28,16 @@ export default function RootLayout({
       className={spaceGrotesk.variable}
       suppressHydrationWarning
     >
-      <body>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
-      </body>
+      <AuthProvider>
+        <QueryProvider>
+          <body>
+            <ThemeProvider>
+              {children}
+              <Toaster richColors />
+            </ThemeProvider>
+          </body>
+        </QueryProvider>
+      </AuthProvider>
     </html>
   );
 }
