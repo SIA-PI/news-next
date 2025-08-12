@@ -1,15 +1,20 @@
 export interface LoginCredentials {
-  email?: string;
-  password?: string;
+  username: string;
+  password: string;
 }
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
+  username: string;
 }
 
 export interface LoginResponse {
-  token: string;
-  user: User;
+  access_token: string;
+}
+
+export interface DecodedToken {
+  username: string;
+  sub: string;
+  iat: string;
+  exp: string;
 }
