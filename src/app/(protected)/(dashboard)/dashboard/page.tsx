@@ -2,11 +2,7 @@
 
 import StatCard from '@/components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import {
-  ActivityItemType,
-  ChartDataType,
-  StatCardType,
-} from '@/types';
+import { ActivityItemType, ChartDataType, StatCardType } from '@/types';
 import {
   faCheckCircle,
   faDownload, faLink,
@@ -16,8 +12,18 @@ import {
   faSync
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Doughnut, Line } from 'react-chartjs-2';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import {
+  getArticlesByDay,
+  getArticlesToday,
+  getFeedsActive,
+  getFeedsByCategory,
+  getUptime,
+  getWebhooks,
+} from '@/features/metrics/services';
 
 import {
   ArcElement,
@@ -36,12 +42,10 @@ ChartJS.register(
   ArcElement, Tooltip, Legend
 );
 
-const statCards: StatCardType[] = [
-    { icon: faRss, bg: 'bg-[rgb(var(--primary))]/20', text: 'text-[rgb(var(--primary))]', value: '24', label: 'Feeds Ativos', trend: '+12%' },
-    { icon: faDownload, bg: 'bg-cyan-500/20', text: 'text-cyan-500', value: '1.2K', label: 'Artigos Hoje', trend: '+5.2%' },
-    { icon: faLink, bg: 'bg-purple-500/20', text: 'text-purple-500', value: '8', label: 'Webhooks', trend: '+8.1%' },
-    { icon: faCheckCircle, bg: 'bg-green-500/20', text: 'text-green-500', value: '100%', label: 'Uptime', trend: '99.9%' }
-];
+function formatNumber(n: number | undefined): string {
+  if (n === undefined || n === null) return '—';
+  return new Intl.NumberFormat('pt-BR').format(n);
+}
 
 const recentActivities: ActivityItemType[] = [
     { icon: faPlus, bg: 'bg-green-500/20', text: 'text-green-500', title: 'Novo feed criado: "Tecnologia Brasil"', time: 'Há 2 minutos' },
@@ -49,27 +53,41 @@ const recentActivities: ActivityItemType[] = [
     { icon: faRobot, bg: 'bg-purple-500/20', text: 'text-purple-500', title: 'Automação executada com sucesso', time: 'Há 10 minutos' },
 ];
 
-const lineData: ChartDataType = {
-  labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'],
-  datasets: [{
-    label: 'Artigos',
-    data: [320, 450, 380, 520, 610, 890, 1200],
-    borderColor: '#6366f1',
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-    tension: 0.4,
-    fill: true,
-  }],
-};
+function toLineData(series: { date: string; count: number }[] | undefined): ChartDataType {
+  const labels = (series ?? []).map((p) => new Date(p.date).toLocaleDateString('pt-BR', { weekday: 'short' }));
+  const data = (series ?? []).map((p) => p.count);
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Artigos',
+        data,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+}
 
-const doughnutData: ChartDataType = {
-    labels: ['Tecnologia', 'Negócios', 'Esportes', 'Saúde', 'Outros'],
-    datasets: [{
-      label: 'Feeds por Categoria',
-      data: [35, 25, 15, 15, 10],
-      backgroundColor: ['#6366f1', '#22d3ee', '#f59e0b', '#ef4444', '#8b5cf6'],
-      borderColor: 'transparent'
-    }],
-};
+function toDoughnutData(items: { category: string; count: number }[] | undefined): ChartDataType {
+  const labels = (items ?? []).map((i) => i.category);
+  const data = (items ?? []).map((i) => i.count);
+  const palette = ['#6366f1', '#22d3ee', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#f472b6'];
+  const backgroundColor = labels.map((_, idx) => palette[idx % palette.length]);
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Feeds por Categoria',
+        data,
+        backgroundColor,
+        borderColor: 'transparent',
+      },
+    ],
+  };
+}
 
 const lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -145,6 +163,91 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const { status } = useSession();
+  const isAuthed = status === 'authenticated';
+
+  const feedsActive = useQuery({
+    queryKey: ['metrics', 'feedsActive'],
+    queryFn: getFeedsActive,
+    enabled: isAuthed,
+  });
+  const articlesToday = useQuery({
+    queryKey: ['metrics', 'articlesToday'],
+    queryFn: () => getArticlesToday(),
+    enabled: isAuthed,
+  });
+  const webhooks = useQuery({
+    queryKey: ['metrics', 'webhooks'],
+    queryFn: getWebhooks,
+    enabled: isAuthed,
+  });
+  const uptime = useQuery({
+    queryKey: ['metrics', 'uptime'],
+    queryFn: getUptime,
+    enabled: isAuthed,
+  });
+  const feedsByCategory = useQuery({
+    queryKey: ['metrics', 'feedsByCategory'],
+    queryFn: getFeedsByCategory,
+    enabled: isAuthed,
+  });
+  const articlesByDay = useQuery({
+    queryKey: ['metrics', 'articlesByDay'],
+    queryFn: () => getArticlesByDay({ days: 7 }),
+    enabled: isAuthed,
+  });
+
+  const statCards: StatCardType[] = useMemo(() => {
+    const uptimePct = (() => {
+      const u = uptime.data;
+      if (!u) return '—';
+      const started = new Date(u.startedAt).getTime();
+      const ts = new Date(u.timestamp).getTime();
+      const total = Math.max(ts - started, 1);
+      const pct = Math.min((u.uptimeSeconds * 1000) / total, 1) * 100;
+      return `${pct.toFixed(1)}%`;
+    })();
+
+    return [
+      {
+        icon: faRss,
+        bg: 'bg-[rgb(var(--primary))]/20',
+        text: 'text-[rgb(var(--primary))]',
+        value: formatNumber(feedsActive.data?.count),
+        label: 'Feeds Ativos',
+        trend: feedsActive.data ? `${feedsActive.data.count}/${feedsActive.data.total}` : '—',
+      },
+      {
+        icon: faDownload,
+        bg: 'bg-cyan-500/20',
+        text: 'text-cyan-500',
+        value: formatNumber(articlesToday.data?.count),
+        label: 'Artigos Hoje',
+        trend: articlesToday.data?.date ?? '—',
+      },
+      {
+        icon: faLink,
+        bg: 'bg-purple-500/20',
+        text: 'text-purple-500',
+        value: formatNumber(webhooks.data?.count),
+        label: 'Webhooks',
+        trend: '+0%'
+      },
+      {
+        icon: faCheckCircle,
+        bg: 'bg-green-500/20',
+        text: 'text-green-500',
+        value: '100%'
+        ,
+        label: 'Uptime',
+        trend: uptimePct,
+      },
+    ];
+  }, [feedsActive.data, articlesToday.data, webhooks.data, uptime.data]);
+
+  const lineData = useMemo(() => toLineData(articlesByDay.data?.series), [articlesByDay.data]);
+  const doughnutData = useMemo(() => toDoughnutData(feedsByCategory.data), [feedsByCategory.data]);
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -167,10 +270,7 @@ export default function DashboardPage() {
             <CardTitle>Feeds por Categoria</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            <Doughnut
-              data={doughnutData}
-              options={doughnutChartOptions}
-            />
+            <Doughnut data={doughnutData} options={doughnutChartOptions} />
           </CardContent>
         </Card>
       </div>

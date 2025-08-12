@@ -11,7 +11,8 @@ const Slot = React.forwardRef<HTMLElement, SlotProps>(
       return null;
     }
 
-    const child = children as React.ReactElement<Record<string, any>>;
+    type ClassAndStyleProps = { className?: string; style?: React.CSSProperties };
+    const child = children as React.ReactElement<Record<string, unknown> & ClassAndStyleProps>;
 
     return React.cloneElement(child, {
       ...props,

@@ -32,6 +32,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { BR, PT, US } from 'country-flag-icons/react/3x2';
+import axios from 'axios';
+import { createFeed } from '@/features/news/services/createFeed';
 import { FormEvent, useReducer } from 'react';
 
 type WebhookStatus = 'idle' | 'loading' | 'ok' | 'error';
@@ -160,6 +162,36 @@ export default function GeneratorPage() {
     await new Promise((r) => setTimeout(r, 800));
     const newUrl = generateRssUrl(topic, country, language, period);
     dispatch({ type: 'GENERATE_SUCCESS', payload: newUrl });
+
+    // Envia automaticamente o feed ao backend ao gerar o RSS
+    const payload = {
+      name: topic ? `RSS: ${topic}` : 'My Awesome Feed',
+      url: newUrl,
+      interval: '0 * * * *',
+    };
+    console.log(JSON.stringify(payload, null, 2));
+    try {
+      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });
+      const response = await createFeed(payload);
+      console.log('Resposta do backend (createFeed):', response);
+      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'ok' });
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error('Erro ao criar feed:', {
+          status: err.response?.status,
+          data: err.response?.data,
+          headers: err.response?.headers,
+        });
+      } else {
+        console.error('Erro desconhecido ao criar feed:', err);
+      }
+      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'error' });
+    } finally {
+      setTimeout(
+        () => dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'idle' }),
+        1500,
+      );
+    }
   };
 
   const onCopy = async () => {
@@ -170,11 +202,28 @@ export default function GeneratorPage() {
   const onWebhook = async () => {
     if (!url) return;
     dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });
-    console.log(`Enviando para: ${process.env.NEXT_PUBLIC_WEBHOOK_URL}`);
+    // Monta o body esperado pela API de feeds
+    const payload = {
+      name: topic ? `RSS: ${topic}` : 'My Awesome Feed',
+      url,
+      interval: '0 * * * *',
+    };
+    // Loga o body para inspeção
+    console.log(JSON.stringify(payload, null, 2));
     try {
-      await new Promise((r) => setTimeout(r, 1000));
+      const response = await createFeed(payload);
+      console.log('Resposta do backend (createFeed):', response);
       dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'ok' });
-    } catch {
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error('Erro ao criar feed:', {
+          status: err.response?.status,
+          data: err.response?.data,
+          headers: err.response?.headers,
+        });
+      } else {
+        console.error('Erro desconhecido ao criar feed:', err);
+      }
       dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'error' });
     } finally {
       setTimeout(

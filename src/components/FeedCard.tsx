@@ -2,6 +2,17 @@ import { FeedItemType } from '@/types';
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, CardContent } from './ui/Card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/DropdownMenu';
+
+type FeedCardProps = FeedItemType & {
+  onEdit?: () => void;
+  onDelete?: () => void;
+};
 
 export default function FeedCard({
   title,
@@ -13,7 +24,9 @@ export default function FeedCard({
   last,
   webhook,
   progress,
-}: FeedItemType) {
+  onEdit,
+  onDelete,
+}: FeedCardProps) {
   return (
     <Card className="glassmorphism-strong">
       <CardContent>
@@ -29,9 +42,23 @@ export default function FeedCard({
               <p className="text-sm text-[rgb(var(--text-muted))]">{count} artigos hoje</p>
             </div>
           </div>
-          <button className="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-colors">
-            <FontAwesomeIcon icon={faEllipsisV} />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-colors">
+              <FontAwesomeIcon icon={faEllipsisV} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-[rgb(var(--muted))] border-[rgb(var(--border))]">
+              {onEdit && (
+                <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+                  Editar
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem onClick={onDelete} className="cursor-pointer text-red-500 focus:text-red-500">
+                  Excluir
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">

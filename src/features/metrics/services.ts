@@ -1,0 +1,81 @@
+import { api } from '@/lib/http-client';
+import { metricsEndpoints } from './endpoints';
+
+export interface FeedsActiveResponse {
+  count: number;
+  total: number;
+  timestamp: string;
+}
+
+export interface ArticlesTodayResponse {
+  count: number;
+  date: string;
+}
+
+export interface WebhooksResponse {
+  count: number;
+  items: unknown[];
+}
+
+export interface UptimeResponse {
+  uptimeSeconds: number;
+  startedAt: string;
+  timestamp: string;
+}
+
+export interface FeedsByCategoryItem {
+  category: string;
+  count: number;
+}
+
+export interface ArticlesByDayResponse {
+  series: { date: string; count: number }[];
+  total: number;
+}
+
+async function authHeaders() {
+  if (typeof window === 'undefined') return {};
+  const { getSession } = await import('next-auth/react');
+  const session = await getSession();
+  return session?.accessToken
+    ? { Authorization: `Bearer ${session.accessToken}`, Accept: 'application/json' }
+    : { Accept: 'application/json' };
+}
+
+export async function getFeedsActive() {
+  const headers = await authHeaders();
+  const { data } = await api.get<FeedsActiveResponse>(metricsEndpoints.feedsActive(), { headers });
+  return data;
+}
+
+export async function getArticlesToday(params?: { tz?: string }) {
+  const headers = await authHeaders();
+  const { data } = await api.get<ArticlesTodayResponse>(metricsEndpoints.articlesToday(params), { headers });
+  return data;
+}
+
+export async function getWebhooks() {
+  const headers = await authHeaders();
+  const { data } = await api.get<WebhooksResponse>(metricsEndpoints.webhooks(), { headers });
+  return data;
+}
+
+export async function getUptime() {
+  const headers = await authHeaders();
+  const { data } = await api.get<UptimeResponse>(metricsEndpoints.uptime(), { headers });
+  return data;
+}
+
+export async function getFeedsByCategory() {
+  const headers = await authHeaders();
+  const { data } = await api.get<FeedsByCategoryItem[]>(metricsEndpoints.feedsByCategory(), { headers });
+  return data;
+}
+
+export async function getArticlesByDay(params?: { days?: number; from?: string; to?: string; feedId?: string; tz?: string }) {
+  const headers = await authHeaders();
+  const { data } = await api.get<ArticlesByDayResponse>(metricsEndpoints.articlesByDay(params), { headers });
+  return data;
+}
+
+
