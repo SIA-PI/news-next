@@ -13,25 +13,27 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Signin() {
-  const [email, setEmail] = useState('test@test.com');
-  const [password, setPassword] = useState('password');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (credentials: LoginCredentials) => login(credentials),
-    onSuccess: () => {
-      toast.success('Login bem-sucedido!');
-      router.push('/dashboard');
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
   });
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.loading('Entrando...');
-    mutate({ email, password });
+
+    const promise = mutateAsync({ username, password });
+
+    toast.promise(promise, {
+      loading: 'Verificando credenciais...',
+      success: () => {
+        router.push('/dashboard');
+        return 'Login bem-sucedido! Redirecionando...';
+      },
+      error: (error) => error.message,
+    });
   };
 
   return (
@@ -48,16 +50,17 @@ export default function Signin() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-[rgb(var(--text-muted))]">
-                  Email
+                <label htmlFor="username" className="text-sm font-medium text-[rgb(var(--text-muted))]">
+                  Usuário
                 </label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="seu-usuario"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
+                  disabled={isPending}
                 />
               </div>
               <div className="space-y-2">
@@ -74,6 +77,7 @@ export default function Signin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isPending}
                 />
               </div>
               <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isPending}>

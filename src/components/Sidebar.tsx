@@ -112,10 +112,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-sm text-[rgb(var(--text-primary))]">
-                      {session?.user?.name ?? 'Usuário'}
-                    </p>
-                    <p className="text-xs text-[rgb(var(--text-muted))]">
-                      {session?.user?.email ?? ''}
+                      {session?.user?.username ?? 'Usuário'}
                     </p>
                   </div>
                   <FontAwesomeIcon

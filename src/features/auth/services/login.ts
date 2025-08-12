@@ -4,7 +4,7 @@ import { LoginCredentials } from '../types';
 export const login = async (credentials: LoginCredentials) => {
   const result = await signIn('credentials', {
     redirect: false,
-    email: credentials.email,
+    username: credentials.username,
     password: credentials.password,
   });
 
