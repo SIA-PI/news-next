@@ -246,7 +246,7 @@ export default function DashboardPage() {
   }, [feedsActive.data, articlesToday.data, webhooks.data, uptime.data]);
 
   const lineData = useMemo(() => toLineData(articlesByDay.data?.series), [articlesByDay.data]);
-  const doughnutData = useMemo(() => toDoughnutData(feedsByCategory.data), [feedsByCategory.data]);
+  const doughnutData = useMemo(() => toDoughnutData(Array.isArray(feedsByCategory.data) ? feedsByCategory.data : (feedsByCategory.data as any)?.items), [feedsByCategory.data]);
 
   return (
     <div className="space-y-8 animate-fade-in">

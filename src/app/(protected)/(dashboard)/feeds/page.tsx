@@ -2,17 +2,25 @@
 import FeedCard from '@/components/FeedCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { deleteFeed } from '@/features/news/services/deleteFeed';
+import { listFeeds } from '@/features/news/services/listFeeds';
+import { updateFeed } from '@/features/news/services/updateFeed';
 import { FeedItemType } from '@/types';
 import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { listFeeds } from '@/features/news/services/listFeeds';
-import { updateFeed } from '@/features/news/services/updateFeed';
-import { deleteFeed } from '@/features/news/services/deleteFeed';
 import { useState } from 'react';
-import { Input } from '@/components/ui/Input';
 
-function mapToFeedItem(feed: { id: string; name?: string; url: string; status: string; createdAt: string; updatedAt: string; interval: string }) : FeedItemType {
+function mapToFeedItem(feed: {
+  id: string;
+  name?: string;
+  url: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  interval: string;
+}): FeedItemType {
   return {
     title: feed.name ?? new URL(feed.url).hostname.replace(/^www\./, ''),
     count: 0,
@@ -25,7 +33,10 @@ function mapToFeedItem(feed: { id: string; name?: string; url: string; status: s
       icon: feed.status === 'ACTIVE' ? faCircle : faPause,
     },
     last: new Date(feed.updatedAt || feed.createdAt).toLocaleString(),
-    webhook: { text: `Intervalo: ${feed.interval}`, cls: 'text-[rgb(var(--text-muted))]' },
+    webhook: {
+      text: `Intervalo: ${feed.interval}`,
+      cls: 'text-[rgb(var(--text-muted))]',
+    },
     progress: feed.status === 'ACTIVE',
   };
 }
@@ -38,14 +49,26 @@ export default function FeedsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { name?: string; url?: string; interval?: string; status?: string } }) =>
-      updateFeed(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: {
+        name?: string;
+        url?: string;
+        interval?: string;
+        status?: string;
+      };
+    }) => updateFeed(id, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteFeed(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
   });
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -78,9 +101,13 @@ export default function FeedsPage() {
         </Button>
       </CardHeader>
       <CardContent>
-        {isLoading && <div className="text-[rgb(var(--text-muted))]">Carregando...</div>}
+        {isLoading && (
+          <div className="text-[rgb(var(--text-muted))]">Carregando...</div>
+        )}
         {isError && (
-          <div className="text-red-400">Erro ao carregar feeds. Tente novamente.</div>
+          <div className="text-red-400">
+            Erro ao carregar feeds. Tente novamente.
+          </div>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {(data ?? []).map((f) => {
@@ -120,16 +147,34 @@ export default function FeedsPage() {
               <h3 className="text-lg font-semibold mb-4">Editar Feed</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">Nome</label>
-                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nome do feed" />
+                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
+                    Nome
+                  </label>
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Nome do feed"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">URL</label>
-                  <Input value={editUrl} onChange={(e) => setEditUrl(e.target.value)} placeholder="https://..." />
+                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
+                    URL
+                  </label>
+                  <Input
+                    value={editUrl}
+                    onChange={(e) => setEditUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">Intervalo (cron)</label>
-                  <Input value={editInterval} onChange={(e) => setEditInterval(e.target.value)} placeholder="0 * * * *" />
+                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
+                    Intervalo (cron)
+                  </label>
+                  <Input
+                    value={editInterval}
+                    onChange={(e) => setEditInterval(e.target.value)}
+                    placeholder="0 * * * *"
+                  />
                 </div>
               </div>
               <div className="mt-6 flex justify-end gap-2">
