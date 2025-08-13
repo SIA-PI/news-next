@@ -4,9 +4,10 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { endpoints } from '@/features/auth/endpoints';
 import { DecodedToken, LoginResponse } from '@/features/auth/types';
 import { User } from 'next-auth';
+import type { User as AppUser } from '@/features/auth/types';
 import { jwtDecode } from 'jwt-decode';
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -49,18 +50,18 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = (user as any).accessToken;
+        token.accessToken = (user as User).accessToken;
         token.user = {
             id: user.id,
-            username: (user as any).username,
+            username: (user as User).username,
         };
       }
       return token;
     },
     async session({ session, token }) {
       if (token && token.user) {
-        session.user = token.user as any;
-        (session as any).accessToken = token.accessToken;
+        session.user = token.user as AppUser;
+        session.accessToken = token.accessToken as string;
       }
       return session;
     },

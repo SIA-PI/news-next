@@ -1,22 +1,26 @@
-"use client";
+'use client';
 
 import StatCard from '@/components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import {
-  ActivityItemType,
-  ChartDataType,
-  StatCardType,
-} from '@/types';
+import { useArticlesByDayQuery } from '@/features/metrics/queries/useArticlesByDayQuery.query';
+import { useArticlesTodayQuery } from '@/features/metrics/queries/useArticlesTodayQuery.query';
+import { useFeedsActiveQuery } from '@/features/metrics/queries/useFeedsActiveQuery.query';
+import { useFeedsByCategoryQuery } from '@/features/metrics/queries/useFeedsByCategoryQuery.query';
+import { useUptimeQuery } from '@/features/metrics/queries/useUptimeQuery.query';
+import { useWebhooksQuery } from '@/features/metrics/queries/useWebhooksQuery.query';
+import { ActivityItemType, ChartDataType, StatCardType } from '@/types';
 import {
   faCheckCircle,
-  faDownload, faLink,
+  faDownload,
+  faLink,
   faPlus,
   faRobot,
   faRss,
-  faSync
+  faSync,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useEffect, useMemo } from 'react';
 import { Doughnut, Line } from 'react-chartjs-2';
 
 import {
@@ -32,81 +36,130 @@ import {
 } from 'chart.js';
 
 ChartJS.register(
-  LineElement, PointElement, LinearScale, CategoryScale,
-  ArcElement, Tooltip, Legend
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  ArcElement,
+  Tooltip,
+  Legend,
 );
 
-const statCards: StatCardType[] = [
-    { icon: faRss, bg: 'bg-[rgb(var(--primary))]/20', text: 'text-[rgb(var(--primary))]', value: '24', label: 'Feeds Ativos', trend: '+12%' },
-    { icon: faDownload, bg: 'bg-cyan-500/20', text: 'text-cyan-500', value: '1.2K', label: 'Artigos Hoje', trend: '+5.2%' },
-    { icon: faLink, bg: 'bg-purple-500/20', text: 'text-purple-500', value: '8', label: 'Webhooks', trend: '+8.1%' },
-    { icon: faCheckCircle, bg: 'bg-green-500/20', text: 'text-green-500', value: '100%', label: 'Uptime', trend: '99.9%' }
-];
+function formatNumber(n: number | undefined): string {
+  if (n === undefined || n === null) return '—';
+  return new Intl.NumberFormat('pt-BR').format(n);
+}
 
-const recentActivities: ActivityItemType[] = [
-    { icon: faPlus, bg: 'bg-green-500/20', text: 'text-green-500', title: 'Novo feed criado: "Tecnologia Brasil"', time: 'Há 2 minutos' },
-    { icon: faSync, bg: 'bg-blue-500/20', text: 'text-blue-500', title: 'Feed atualizado: 156 novos artigos', time: 'Há 5 minutos' },
-    { icon: faRobot, bg: 'bg-purple-500/20', text: 'text-purple-500', title: 'Automação executada com sucesso', time: 'Há 10 minutos' },
-];
+// const recentActivities: ActivityItemType[] = [
+//   {
+//     icon: faPlus,
+//     bg: 'bg-green-500/20',
+//     text: 'text-green-500',
+//     title: 'Novo feed criado: "Tecnologia Brasil"',
+//     time: 'Há 2 minutos',
+//   },
+//   {
+//     icon: faSync,
+//     bg: 'bg-blue-500/20',
+//     text: 'text-blue-500',
+//     title: 'Feed atualizado: 156 novos artigos',
+//     time: 'Há 5 minutos',
+//   },
+//   {
+//     icon: faRobot,
+//     bg: 'bg-purple-500/20',
+//     text: 'text-purple-500',
+//     title: 'Automação executada com sucesso',
+//     time: 'Há 10 minutos',
+//   },
+// ];
 
-const lineData: ChartDataType = {
-  labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'],
-  datasets: [{
-    label: 'Artigos',
-    data: [320, 450, 380, 520, 610, 890, 1200],
-    borderColor: '#6366f1',
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-    tension: 0.4,
-    fill: true,
-  }],
-};
+function toLineData(
+  series: { date: string; count: number }[] | undefined,
+): ChartDataType {
+  const labels = (series ?? []).map((p) =>
+    new Date(p.date).toLocaleDateString('pt-BR', { weekday: 'short' }),
+  );
+  const data = (series ?? []).map((p) => p.count);
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Artigos',
+        data,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
+}
 
-const doughnutData: ChartDataType = {
-    labels: ['Tecnologia', 'Negócios', 'Esportes', 'Saúde', 'Outros'],
-    datasets: [{
-      label: 'Feeds por Categoria',
-      data: [35, 25, 15, 15, 10],
-      backgroundColor: ['#6366f1', '#22d3ee', '#f59e0b', '#ef4444', '#8b5cf6'],
-      borderColor: 'transparent'
-    }],
-};
+function toDoughnutData(
+  items: { category: string; count: number }[] | undefined,
+): ChartDataType {
+  const labels = (items ?? []).map((i) => i.category);
+  const data = (items ?? []).map((i) => i.count);
+  const palette = [
+    '#6366f1',
+    '#22d3ee',
+    '#f59e0b',
+    '#ef4444',
+    '#8b5cf6',
+    '#14b8a6',
+    '#f472b6',
+  ];
+  const backgroundColor = labels.map((_, idx) => palette[idx % palette.length]);
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Feeds por Categoria',
+        data,
+        backgroundColor,
+        borderColor: 'transparent',
+      },
+    ],
+  };
+}
 
 const lineChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#cbd5e1',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: false,
-      }
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: 'rgba(15, 23, 42, 0.8)',
+      titleColor: '#ffffff',
+      bodyColor: '#cbd5e1',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      borderWidth: 1,
+      cornerRadius: 8,
+      displayColors: false,
     },
-    scales: {
-      x: {
-        grid: { 
-          display: false,
-          color: 'rgba(255, 255, 255, 0.1)'
-        },
-        ticks: { 
-          color: '#9ca3af',
-          font: { size: 12 }
-        },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+        color: 'rgba(255, 255, 255, 0.1)',
       },
-      y: {
-        grid: { 
-          color: 'rgba(255, 255, 255, 0.1)'
-        },
-        ticks: { 
-          color: '#9ca3af',
-          font: { size: 12 }
-        },
+      ticks: {
+        color: '#9ca3af',
+        font: { size: 12 },
       },
     },
+    y: {
+      grid: {
+        color: 'rgba(255, 255, 255, 0.1)',
+      },
+      ticks: {
+        color: '#9ca3af',
+        font: { size: 12 },
+      },
+    },
+  },
 };
 
 const doughnutChartOptions: ChartOptions<'doughnut'> = {
@@ -116,11 +169,11 @@ const doughnutChartOptions: ChartOptions<'doughnut'> = {
     legend: {
       display: true,
       position: 'bottom',
-      labels: { 
+      labels: {
         color: '#9ca3af',
         font: { size: 12 },
         usePointStyle: true,
-        padding: 20
+        padding: 20,
       },
     },
     tooltip: {
@@ -130,7 +183,7 @@ const doughnutChartOptions: ChartOptions<'doughnut'> = {
       borderColor: 'rgba(255, 255, 255, 0.1)',
       borderWidth: 1,
       cornerRadius: 8,
-    }
+    },
   },
 };
 
@@ -145,10 +198,88 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const { status } = useSession();
+  const isAuthed = status === 'authenticated';
+
+  const feedsActive = useFeedsActiveQuery(isAuthed);
+
+  const articlesToday = useArticlesTodayQuery(isAuthed);
+
+  const webhooks = useWebhooksQuery(isAuthed);
+
+  const uptime = useUptimeQuery(isAuthed);
+
+  const feedsByCategory = useFeedsByCategoryQuery(isAuthed);
+
+  const articlesByDay = useArticlesByDayQuery(isAuthed);
+
+  const statCards: StatCardType[] = useMemo(() => {
+    const uptimePct = (() => {
+      const u = uptime.data;
+      if (!u) return '—';
+      const started = new Date(u.startedAt).getTime();
+      const ts = new Date(u.timestamp).getTime();
+      const total = Math.max(ts - started, 1);
+      const pct = Math.min((u.uptimeSeconds * 1000) / total, 1) * 100;
+      return `${pct.toFixed(1)}%`;
+    })();
+
+    return [
+      {
+        icon: faRss,
+        bg: 'bg-[rgb(var(--primary))]/20',
+        text: 'text-[rgb(var(--primary))]',
+        value: formatNumber(feedsActive.data?.count),
+        label: 'Feeds Ativos',
+        trend: feedsActive.data
+          ? `${feedsActive.data.count}/${feedsActive.data.total}`
+          : '—',
+      },
+      {
+        icon: faDownload,
+        bg: 'bg-cyan-500/20',
+        text: 'text-cyan-500',
+        value: formatNumber(articlesToday.data?.count),
+        label: 'Artigos Hoje',
+        trend: articlesToday.data?.date ?? '—',
+      },
+      {
+        icon: faLink,
+        bg: 'bg-purple-500/20',
+        text: 'text-purple-500',
+        value: formatNumber(webhooks.data?.count),
+        label: 'Webhooks',
+        trend: '+0%',
+      },
+      {
+        icon: faCheckCircle,
+        bg: 'bg-green-500/20',
+        text: 'text-green-500',
+        value: '100%',
+        label: 'Uptime',
+        trend: uptimePct,
+      },
+    ];
+  }, [feedsActive.data, articlesToday.data, webhooks.data, uptime.data]);
+
+  const lineData = useMemo(
+    () => toLineData(articlesByDay.data?.series),
+    [articlesByDay.data],
+  );
+  const doughnutData = useMemo(
+    () =>
+      toDoughnutData(
+        Array.isArray(feedsByCategory.data)
+          ? feedsByCategory.data
+          : (feedsByCategory.data as any)?.items,
+      ),
+    [feedsByCategory.data],
+  );
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map(card => (
+        {statCards.map((card) => (
           <StatCard key={card.label} {...card} />
         ))}
       </div>
@@ -167,32 +298,40 @@ export default function DashboardPage() {
             <CardTitle>Feeds por Categoria</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            <Doughnut
-              data={doughnutData}
-              options={doughnutChartOptions}
-            />
+            <Doughnut data={doughnutData} options={doughnutChartOptions} />
           </CardContent>
         </Card>
       </div>
-
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Atividade Recente</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {recentActivities.map((item) => (
-            <div key={item.title} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
-              <div className={`w-8 h-8 ${item.bg} rounded-full flex items-center justify-center`}>
-                <FontAwesomeIcon icon={item.icon} className={`${item.text} text-sm`} />
+            <div
+              key={item.title}
+              className="flex items-center gap-4 p-4 bg-white/5 rounded-xl"
+            >
+              <div
+                className={`w-8 h-8 ${item.bg} rounded-full flex items-center justify-center`}
+              >
+                <FontAwesomeIcon
+                  icon={item.icon}
+                  className={`${item.text} text-sm`}
+                />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-[rgb(var(--text-primary))]">{item.title}</p>
-                <p className="text-[rgb(var(--text-muted))] text-sm">{item.time}</p>
+                <p className="font-medium text-[rgb(var(--text-primary))]">
+                  {item.title}
+                </p>
+                <p className="text-[rgb(var(--text-muted))] text-sm">
+                  {item.time}
+                </p>
               </div>
             </div>
           ))}
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
