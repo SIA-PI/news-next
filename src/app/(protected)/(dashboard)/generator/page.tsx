@@ -163,7 +163,6 @@ export default function GeneratorPage() {
     const newUrl = generateRssUrl(topic, country, language, period);
     dispatch({ type: 'GENERATE_SUCCESS', payload: newUrl });
 
-    // Envia automaticamente o feed ao backend ao gerar o RSS
     const payload = {
       name: topic ? `RSS: ${topic}` : 'My Awesome Feed',
       url: newUrl,
@@ -202,13 +201,11 @@ export default function GeneratorPage() {
   const onWebhook = async () => {
     if (!url) return;
     dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });
-    // Monta o body esperado pela API de feeds
     const payload = {
-      name: topic ? `RSS: ${topic}` : 'My Awesome Feed',
+      name: topic ? `RSS: ${topic}` : '',
       url,
-      interval: '0 * * * *',
+      interval: '5 * * * *',
     };
-    // Loga o body para inspeção
     console.log(JSON.stringify(payload, null, 2));
     try {
       const response = await createFeed(payload);

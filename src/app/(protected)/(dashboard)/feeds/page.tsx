@@ -2,7 +2,8 @@
 import FeedCard from '@/components/FeedCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
+import { CreateFeedModal } from '@/features/news/components/CreateFeedModal';
+import { EditFeedModal } from '@/features/news/components/EditFeedModal';
 import { useDeleteFeedMutation } from '@/features/news/mutations/useDeleteFeedMutation.mutation';
 import { useUpdateFeedMutation } from '@/features/news/mutations/useUpdateFeedMutation.mutation';
 import { useListFeedsQuery } from '@/features/news/queries/useListFeedsQuery.query';
@@ -64,9 +65,6 @@ export default function FeedsPage() {
   const [editInterval, setEditInterval] = useState('');
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createName, setCreateName] = useState('');
-  const [createUrl, setCreateUrl] = useState('');
-  const [createInterval, setCreateInterval] = useState('0 * * * *');
 
   const items: FeedItemType[] = (data ?? []).map((f) =>
     mapToFeedItem({
@@ -91,7 +89,7 @@ export default function FeedsPage() {
       </CardHeader>
       <CardContent>
         {isLoading && (
-          <div className="text-[rgb(var(--text-muted))]">Carregando...</div>
+          <div className="text-[rgb(var(--text-muted)))]">Carregando...</div>
         )}
         {isError && (
           <div className="text-red-400">
@@ -130,133 +128,17 @@ export default function FeedsPage() {
           })}
         </div>
 
-        {isCreateOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-xl bg-[rgb(var(--muted))] border border-[rgb(var(--border))] p-6 shadow-xl">
-              <h3 className="text-lg font-semibold mb-4">Criar Novo Feed</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-                    Nome
-                  </label>
-                  <Input
-                    value={createName}
-                    onChange={(e) => setCreateName(e.target.value)}
-                    placeholder="My Awesome Feed"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-                    URL
-                  </label>
-                  <Input
-                    value={createUrl}
-                    onChange={(e) => setCreateUrl(e.target.value)}
-                    placeholder="https://www.example.com/rss"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-                    Intervalo (cron)
-                  </label>
-                  <Input
-                    value={createInterval}
-                    onChange={(e) => setCreateInterval(e.target.value)}
-                    placeholder="0 * * * *"
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setIsCreateOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button
-                  variant="primary"
-                  disabled={createMutation.isPending}
-                  onClick={() => {
-                    createMutation.mutate({
-                      name: createName,
-                      url: createUrl,
-                      interval: createInterval,
-                    });
-                  }}
-                >
-                  Criar
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <CreateFeedModal isOpen={isCreateOpen} setIsOpen={setIsCreateOpen} />
 
-        {isEditOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-xl bg-[rgb(var(--muted))] border border-[rgb(var(--border))] p-6 shadow-xl">
-              <h3 className="text-lg font-semibold mb-4">Editar Feed</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-                    Nome
-                  </label>
-                  <Input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    placeholder="Nome do feed"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-                    URL
-                  </label>
-                  <Input
-                    value={editUrl}
-                    onChange={(e) => setEditUrl(e.target.value)}
-                    placeholder="https://..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-                    Intervalo (cron)
-                  </label>
-                  <Input
-                    value={editInterval}
-                    onChange={(e) => setEditInterval(e.target.value)}
-                    placeholder="0 * * * *"
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsEditOpen(false);
-                    setEditId(null);
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="primary"
-                  disabled={updateMutation.isPending || !editId}
-                  onClick={async () => {
-                    if (!editId) return;
-                    await updateMutation.mutateAsync({
-                      id: editId,
-                      payload: {
-                        name: editName || undefined,
-                        url: editUrl || undefined,
-                        interval: editInterval || undefined,
-                      },
-                    });
-                    setIsEditOpen(false);
-                    setEditId(null);
-                  }}
-                >
-                  Salvar
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <EditFeedModal
+          isOpen={isEditOpen}
+          setIsOpen={setIsEditOpen}
+          feedId={editId}
+          initialName={editName}
+          initialUrl={editUrl}
+          initialInterval={editInterval}
+          setEditId={setEditId}
+        />
       </CardContent>
     </Card>
   );
