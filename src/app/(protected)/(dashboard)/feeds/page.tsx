@@ -12,6 +12,7 @@ import { FeedItemType } from '@/types';
 import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 function mapToFeedItem(feed: {
@@ -44,6 +45,7 @@ function mapToFeedItem(feed: {
 }
 
 export default function FeedsPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { data, isLoading, isError } = useListFeedsQuery();
   const updateMutation = useUpdateFeedMutation();
@@ -111,6 +113,7 @@ export default function FeedsPage() {
               <FeedCard
                 key={f.id}
                 {...item}
+                onView={() => router.push(`/feeds/details/${f.id}`)}
                 onEdit={() => {
                   setEditId(f.id);
                   setEditName(f.name ?? '');

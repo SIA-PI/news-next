@@ -34,6 +34,7 @@ export default function RootLayout({
             <ThemeProvider>
               {children}
               <Toaster richColors />
+              <div id="modal-root"></div>
             </ThemeProvider>
           </body>
         </QueryProvider>

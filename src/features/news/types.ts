@@ -5,6 +5,10 @@ export interface Feed {
   name: string;
   url: string;
   interval: CronExpression;
+  status: 'ACTIVE' | 'PAUSED' | string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
   [key: string]: unknown;
 }
 

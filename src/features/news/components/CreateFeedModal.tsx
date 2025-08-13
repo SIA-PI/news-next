@@ -3,7 +3,8 @@
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useCreateFeedMutation } from '@/features/news/mutations/useCreateFeedMutation.mutation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface CreateFeedModalProps {
   isOpen: boolean;
@@ -23,13 +24,18 @@ export const CreateFeedModal = ({
   const [createName, setCreateName] = useState(initialName);
   const [createUrl, setCreateUrl] = useState(initialUrl);
   const [createInterval, setCreateInterval] = useState(initialInterval);
+  const [isClient, setIsClient] = useState(false);
 
   const createMutation = useCreateFeedMutation();
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+  if (!isOpen || !isClient) return null;
+
+  const modalContent = (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-fade-in">
       <div className="w-full max-w-md rounded-xl bg-[rgb(var(--muted))] border border-[rgb(var(--border))] p-6 shadow-xl">
         <h3 className="text-lg font-semibold mb-4">Criar Novo Feed</h3>
         <div className="space-y-4">
@@ -86,4 +92,6 @@ export const CreateFeedModal = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.getElementById('modal-root')!);
 };
