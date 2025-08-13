@@ -15,6 +15,21 @@ export interface ListFeedsParams {
   disabled?: boolean;
 }
 
+export interface CreateFeedRequest {
+  name: string;
+  url: string;
+  interval: string; // e.g. cron expression "0 * * * *"
+}
+
+export interface CreateFeedResponse {
+  id?: string;
+  name: string;
+  url: string;
+  interval: string;
+  // include any fields your backend returns; kept flexible
+  [key: string]: unknown;
+}
+
 export interface ListFeedsItem {
   id: string;
   name?: string;
