@@ -3,14 +3,14 @@ import FeedCard from '@/components/FeedCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { useDeleteFeedMutation } from '@/features/news/mutations/useDeleteFeedMutation.mutation';
+import { useUpdateFeedMutation } from '@/features/news/mutations/useUpdateFeedMutation.mutation';
+import { useListFeedsQuery } from '@/features/news/queries/useListFeedsQuery.query';
 import { createFeed } from '@/features/news/services/createFeed';
-import { deleteFeed } from '@/features/news/services/deleteFeed';
-import { listFeeds } from '@/features/news/services/listFeeds';
-import { updateFeed } from '@/features/news/services/updateFeed';
 import { FeedItemType } from '@/types';
 import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 function mapToFeedItem(feed: {
@@ -44,33 +44,10 @@ function mapToFeedItem(feed: {
 
 export default function FeedsPage() {
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['feeds', 'list'],
-    queryFn: listFeeds,
-  });
+  const { data, isLoading, isError } = useListFeedsQuery();
+  const updateMutation = useUpdateFeedMutation();
 
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: {
-        name?: string;
-        url?: string;
-        interval?: string;
-        status?: string;
-      };
-    }) => updateFeed(id, payload),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteFeed(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
-  });
+  const deleteMutation = useDeleteFeedMutation();
 
   const createMutation = useMutation({
     mutationFn: createFeed,
