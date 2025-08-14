@@ -196,6 +196,7 @@ export default function GeneratorPage() {
       await createFeed(payload);
       dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'ok' });
       toast.success('Feed salvo com sucesso na sua lista!');
+      router.push('/feeds');
     } catch (err) {
       console.error('Erro ao criar feed:', err);
       dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'error' });
