@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'; // Importando o componente Select
+import { feedCategories } from '@/constants';
 import { useCreateFeedMutation } from '@/features/news/mutations/useCreateFeedMutation.mutation';
 import { useSession } from 'next-auth/react'; // Importando o hook da sessão
 import { useEffect, useState } from 'react';
@@ -18,17 +19,6 @@ interface CreateFeedModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
-
-// Supondo que você tenha uma lista de categorias pré-definida
-const feedCategories = [
-  'General',
-  'Technology',
-  'Business',
-  'Entertainment',
-  'Sports',
-  'Science',
-  'Health',
-];
 
 export const CreateFeedModal = ({
   isOpen,
@@ -60,7 +50,7 @@ export const CreateFeedModal = ({
       url,
       interval,
       category,
-      userId: session.user.id, // Passando o userId da sessão
+      // userId: session.user.id, 
     });
     setIsOpen(false);
     // Limpar os campos após a criação bem-sucedida

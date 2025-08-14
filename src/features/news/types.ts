@@ -24,7 +24,7 @@ export interface CreateFeedRequest {
   url: string;
   interval: string; // e.g. cron expression "0 * * * *"
   category: string;
-  userId: string;
+  // userId: string;
 }
 
 export interface CreateFeedResponse {

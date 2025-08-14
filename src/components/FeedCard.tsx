@@ -43,9 +43,9 @@ export default function FeedCard({
               <h4 className="font-semibold text-[rgb(var(--text-primary))]">
                 {title}
               </h4>
-              <p className="text-sm text-[rgb(var(--text-muted))]">
+              {/* <p className="text-sm text-[rgb(var(--text-muted))]">
                 {count} artigos hoje
-              </p>
+              </p> */}
             </div>
           </div>
           <DropdownMenu>

@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { feedCategories } from '@/constants';
 import { createFeed } from '@/features/news/services/createFeed';
 import {
   faBolt,
@@ -153,16 +154,6 @@ const templates = {
   },
 };
 
-const feedCategories = [
-  'Geral',
-  'Tecnologia',
-  'Negócios',
-  'Entretenimento',
-  'Esportes',
-  'Ciência',
-  'Saúde',
-];
-
 export default function GeneratorPage() {
   const [state, dispatch] = useReducer(generatorReducer, initialState);
   const { data: session } = useSession();
@@ -195,7 +186,7 @@ export default function GeneratorPage() {
       url: feedUrl,
       interval: '0 * * * *',
       category: category,
-      userId: session.user.id,
+      // userId: session.user.id,
     };
 
     dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });

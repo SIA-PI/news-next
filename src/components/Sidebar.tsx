@@ -55,11 +55,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </div>
           <div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-[rgb(var(--text-primary))] to-[rgb(var(--text-secondary))] bg-clip-text text-transparent">
-              NewsPulse
+              SiaNews
             </h1>
-            <p className="text-xs text-[rgb(var(--text-muted))]">
-              Dashboard v1.0
-            </p>
+            <p className="text-xs text-[rgb(var(--text-muted))]"></p>
           </div>
         </div>
 
