@@ -1,10 +1,12 @@
-export type CronExpression = string;
-
 export interface Feed {
   id?: string;
   name: string;
   url: string;
-  interval: CronExpression;
+  interval: string;
+  status: 'ACTIVE' | 'PAUSED' | string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
   [key: string]: unknown;
 }
 
@@ -19,6 +21,8 @@ export interface CreateFeedRequest {
   name: string;
   url: string;
   interval: string; // e.g. cron expression "0 * * * *"
+  category: string;
+  // userId: string;
 }
 
 export interface CreateFeedResponse {
@@ -36,6 +40,17 @@ export interface ListFeedsItem {
   url: string;
   status: 'ACTIVE' | 'PAUSED' | string;
   interval: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  link: string;
+  pubDate: string;
+  summary: string;
+  feedId: string;
   createdAt: string;
   updatedAt: string;
 }

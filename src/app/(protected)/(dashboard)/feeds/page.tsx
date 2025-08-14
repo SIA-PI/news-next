@@ -9,9 +9,11 @@ import { useUpdateFeedMutation } from '@/features/news/mutations/useUpdateFeedMu
 import { useListFeedsQuery } from '@/features/news/queries/useListFeedsQuery.query';
 import { createFeed } from '@/features/news/services/createFeed';
 import { FeedItemType } from '@/types';
+import { getCronDescription } from '@/lib/utils';
 import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 function mapToFeedItem(feed: {
@@ -36,7 +38,7 @@ function mapToFeedItem(feed: {
     },
     last: new Date(feed.updatedAt || feed.createdAt).toLocaleString(),
     webhook: {
-      text: `Intervalo: ${feed.interval}`,
+      text: `Intervalo: ${getCronDescription(feed.interval)}`,
       cls: 'text-[rgb(var(--text-muted))]',
     },
     progress: feed.status === 'ACTIVE',
@@ -44,6 +46,7 @@ function mapToFeedItem(feed: {
 }
 
 export default function FeedsPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { data, isLoading, isError } = useListFeedsQuery();
   const updateMutation = useUpdateFeedMutation();
@@ -111,6 +114,7 @@ export default function FeedsPage() {
               <FeedCard
                 key={f.id}
                 {...item}
+                onView={() => router.push(`/feeds/details/${f.id}`)}
                 onEdit={() => {
                   setEditId(f.id);
                   setEditName(f.name ?? '');

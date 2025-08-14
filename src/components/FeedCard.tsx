@@ -1,5 +1,5 @@
 import { FeedItemType } from '@/types';
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisV, faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, CardContent } from './ui/Card';
 import {
@@ -12,6 +12,7 @@ import {
 type FeedCardProps = FeedItemType & {
   onEdit?: () => void;
   onDelete?: () => void;
+  onView?: () => void;
 };
 
 export default function FeedCard({
@@ -26,6 +27,7 @@ export default function FeedCard({
   progress,
   onEdit,
   onDelete,
+  onView,
 }: FeedCardProps) {
   return (
     <Card className="glassmorphism-strong">
@@ -38,22 +40,40 @@ export default function FeedCard({
               <FontAwesomeIcon icon={icon} className={text} />
             </div>
             <div>
-              <h4 className="font-semibold text-[rgb(var(--text-primary))]">{title}</h4>
-              <p className="text-sm text-[rgb(var(--text-muted))]">{count} artigos hoje</p>
+              <h4 className="font-semibold text-[rgb(var(--text-primary))]">
+                {title}
+              </h4>
+              {/* <p className="text-sm text-[rgb(var(--text-muted))]">
+                {count} artigos hoje
+              </p> */}
             </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger className="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text-primary))] transition-colors">
               <FontAwesomeIcon icon={faEllipsisV} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[rgb(var(--muted))] border-[rgb(var(--border))]">
+            <DropdownMenuContent
+              align="end"
+              className="bg-[rgb(var(--muted))] border-[rgb(var(--border))]"
+            >
+              {onView && (
+                <DropdownMenuItem onClick={onView} className="cursor-pointer">
+                  <FontAwesomeIcon icon={faEye} className="mr-2" />
+                  Visualizar
+                </DropdownMenuItem>
+              )}
               {onEdit && (
                 <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+                  <FontAwesomeIcon icon={faPen} className="mr-2" />
                   Editar
                 </DropdownMenuItem>
               )}
               {onDelete && (
-                <DropdownMenuItem onClick={onDelete} className="cursor-pointer text-red-500 focus:text-red-500">
+                <DropdownMenuItem
+                onClick={onDelete}
+                className="cursor-pointer text-red-500 focus:text-red-500"
+                >
+                  <FontAwesomeIcon icon={faTrash} className="mr-2" />
                   Excluir
                 </DropdownMenuItem>
               )}
@@ -69,7 +89,9 @@ export default function FeedCard({
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[rgb(var(--text-muted))]">Última atualização:</span>
+            <span className="text-[rgb(var(--text-muted))]">
+              Última atualização:
+            </span>
             <span className="text-[rgb(var(--text-primary))]">{last}</span>
           </div>
           <div className="flex items-center justify-between text-sm">

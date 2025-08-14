@@ -13,7 +13,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'NewsPulse Dashboard',
+  title: 'SiaNews Dashboard',
   description: 'Sua plataforma inteligente de gerenciamento de feeds RSS.',
 };
 
@@ -34,6 +34,7 @@ export default function RootLayout({
             <ThemeProvider>
               {children}
               <Toaster richColors />
+              <div id="modal-root"></div>
             </ThemeProvider>
           </body>
         </QueryProvider>
