@@ -10,7 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
+import { createFeed } from '@/features/news/services/createFeed';
 import {
+  faBolt,
   faCalendar,
   faChartLine,
   faCheck,
@@ -32,17 +34,19 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { BR, PT, US } from 'country-flag-icons/react/3x2';
-import axios from 'axios';
-import { createFeed } from '@/features/news/services/createFeed';
+import { useSession } from 'next-auth/react'; // Importado para obter o userId
 import { FormEvent, useReducer } from 'react';
+import { toast } from 'sonner';
 
 type WebhookStatus = 'idle' | 'loading' | 'ok' | 'error';
 
+// --- ESTADO ATUALIZADO ---
 interface GeneratorState {
   topic: string;
   country: string;
   language: string;
   period: string;
+  category: string; // Novo campo
   loading: boolean;
   url: string;
   sentWebhook: WebhookStatus;
@@ -54,12 +58,14 @@ const initialState: GeneratorState = {
   country: 'BR',
   language: 'pt-BR',
   period: 'all',
+  category: '', // Novo campo
   loading: false,
   url: '',
   sentWebhook: 'idle',
   saved: false,
 };
 
+// ... (Reducer e outras funções permanecem os mesmos)
 type GeneratorAction =
   | { type: 'SET_FIELD'; field: keyof GeneratorState; payload: string }
   | {
@@ -147,15 +153,72 @@ const templates = {
   },
 };
 
+const feedCategories = [
+  'Geral',
+  'Tecnologia',
+  'Negócios',
+  'Entretenimento',
+  'Esportes',
+  'Ciência',
+  'Saúde',
+];
+
 export default function GeneratorPage() {
   const [state, dispatch] = useReducer(generatorReducer, initialState);
-  const { topic, country, language, period, loading, url, sentWebhook, saved } =
-    state;
+  const { data: session } = useSession();
+  const {
+    topic,
+    country,
+    language,
+    period,
+    category,
+    loading,
+    url,
+    sentWebhook,
+    saved,
+  } = state;
+
+  // --- LÓGICA DE CRIAÇÃO ATUALIZADA ---
+  const handleCreateFeed = async (feedUrl: string) => {
+    if (!session?.user?.id) {
+      toast.error('Usuário não autenticado. Por favor, faça login novamente.');
+      return;
+    }
+
+    if (!category) {
+      toast.warning('Por favor, selecione uma categoria para o feed.');
+      return;
+    }
+
+    const payload = {
+      name: topic ? `RSS: ${topic}` : 'Meu Feed RSS',
+      url: feedUrl,
+      interval: '0 * * * *',
+      category: category,
+      userId: session.user.id,
+    };
+
+    dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });
+    try {
+      await createFeed(payload);
+      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'ok' });
+      toast.success('Feed salvo com sucesso na sua lista!');
+    } catch (err) {
+      console.error('Erro ao criar feed:', err);
+      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'error' });
+      toast.error('Falha ao salvar o feed. Tente novamente.');
+    } finally {
+      setTimeout(
+        () => dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'idle' }),
+        1500,
+      );
+    }
+  };
 
   const onGenerate = async (e: FormEvent) => {
     e.preventDefault();
     if (!topic) {
-      alert('Por favor, digite um tópico!');
+      toast.warning('Por favor, digite um tópico para gerar o feed.');
       return;
     }
     dispatch({ type: 'GENERATE_START' });
@@ -163,71 +226,18 @@ export default function GeneratorPage() {
     const newUrl = generateRssUrl(topic, country, language, period);
     dispatch({ type: 'GENERATE_SUCCESS', payload: newUrl });
 
-    const payload = {
-      name: topic ? `RSS: ${topic}` : 'My Awesome Feed',
-      url: newUrl,
-      interval: '0 * * * *',
-    };
-    console.log(JSON.stringify(payload, null, 2));
-    try {
-      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });
-      const response = await createFeed(payload);
-      console.log('Resposta do backend (createFeed):', response);
-      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'ok' });
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error('Erro ao criar feed:', {
-          status: err.response?.status,
-          data: err.response?.data,
-          headers: err.response?.headers,
-        });
-      } else {
-        console.error('Erro desconhecido ao criar feed:', err);
-      }
-      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'error' });
-    } finally {
-      setTimeout(
-        () => dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'idle' }),
-        1500,
-      );
-    }
+    // A chamada para salvar o feed foi movida para o botão de webhook/salvar
   };
 
   const onCopy = async () => {
     if (!url) return;
     await navigator.clipboard.writeText(url);
+    toast.info('URL copiada para a área de transferência!');
   };
 
-  const onWebhook = async () => {
+  const onSaveAndWebhook = () => {
     if (!url) return;
-    dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'loading' });
-    const payload = {
-      name: topic ? `RSS: ${topic}` : '',
-      url,
-      interval: '5 * * * *',
-    };
-    console.log(JSON.stringify(payload, null, 2));
-    try {
-      const response = await createFeed(payload);
-      console.log('Resposta do backend (createFeed):', response);
-      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'ok' });
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error('Erro ao criar feed:', {
-          status: err.response?.status,
-          data: err.response?.data,
-          headers: err.response?.headers,
-        });
-      } else {
-        console.error('Erro desconhecido ao criar feed:', err);
-      }
-      dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'error' });
-    } finally {
-      setTimeout(
-        () => dispatch({ type: 'SET_WEBHOOK_STATUS', payload: 'idle' }),
-        1500,
-      );
-    }
+    handleCreateFeed(url);
   };
 
   const onSave = () => {
@@ -251,6 +261,7 @@ export default function GeneratorPage() {
         </CardHeader>
         <CardContent>
           <form className="space-y-6" onSubmit={onGenerate}>
+            {/* Tópico */}
             <div className="space-y-2">
               <label
                 htmlFor="topic-input"
@@ -267,7 +278,32 @@ export default function GeneratorPage() {
                 placeholder="Ex: inteligência artificial"
               />
             </div>
+
+            {/* --- NOVO CAMPO DE CATEGORIA --- */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <FontAwesomeIcon icon={faBolt} className="text-yellow-400" />{' '}
+                Categoria
+              </label>
+              <Select
+                value={category}
+                onValueChange={(value) => handleFieldChange('category', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {feedCategories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* País */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                   <FontAwesomeIcon icon={faGlobe} className="text-cyan-400" />{' '}
@@ -278,7 +314,7 @@ export default function GeneratorPage() {
                   onValueChange={(value) => handleFieldChange('country', value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione um país..." />
+                    <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="BR">
@@ -290,7 +326,7 @@ export default function GeneratorPage() {
                     <SelectItem value="US">
                       <div className="flex items-center gap-2">
                         <US className="w-5 h-auto rounded-sm" />
-                        <span>Estados Unidos</span>
+                        <span>EUA</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="PT">
@@ -302,6 +338,7 @@ export default function GeneratorPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {/* Linguagem */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                   <FontAwesomeIcon
@@ -326,6 +363,7 @@ export default function GeneratorPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {/* Período */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                   <FontAwesomeIcon
@@ -390,14 +428,15 @@ export default function GeneratorPage() {
                     <button
                       onClick={onCopy}
                       className="text-cyan-400 hover:text-cyan-300 p-2"
-                      title="Copiar"
+                      title="Copiar URL"
                     >
                       <FontAwesomeIcon icon={faCopy} />
                     </button>
+                    {/* Botão de salvar/webhook atualizado */}
                     <button
-                      onClick={onWebhook}
+                      onClick={onSaveAndWebhook}
                       className="text-indigo-400 hover:text-indigo-300 p-2"
-                      title="Enviar Webhook"
+                      title="Salvar Feed"
                     >
                       {sentWebhook === 'loading' && (
                         <div className="loading-spinner" />

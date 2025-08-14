@@ -1,5 +1,7 @@
 'use client';
 
+import { faImage } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from './ui/Card';
 
@@ -13,6 +15,16 @@ interface Article {
 
 interface PreviewData {
   image?: string;
+}
+
+/**
+ * Remove tags HTML de uma string para exibir texto puro.
+ * @param html A string contendo HTML.
+ * @returns A string sem as tags HTML.
+ */
+function stripHtml(html: string) {
+  if (!html) return '';
+  return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ');
 }
 
 export default function ArticleCard({ article }: { article: Article }) {
@@ -43,27 +55,39 @@ export default function ArticleCard({ article }: { article: Article }) {
     fetchPreview();
   }, [article.link]);
 
+  // Verifica se a imagem é um favicon ou não existe para decidir se deve mostrar o fallback.
+  const showImageFallback = !preview?.image || preview.image.includes('favicon');
+
   return (
     <a href={article.link} target="_blank" rel="noopener noreferrer">
-      <Card className="glassmorphism-strong hover:bg-white/10 transition-colors">
-        <CardContent className="flex gap-4">
-          {isLoading ? (
-            <div className="w-32 h-20 bg-gray-700 rounded-lg animate-pulse"></div>
-          ) : (
-            preview?.image && (
+      <Card className="glassmorphism-strong hover:bg-white/10 transition-colors duration-300">
+        <CardContent className="flex gap-4 p-4 items-center">
+          {/* Lógica de Imagem/Fallback */}
+          <div className="w-32 h-20 flex-shrink-0">
+            {isLoading ? (
+              <div className="w-full h-full bg-[rgb(var(--border))] rounded-lg animate-pulse"></div>
+            ) : showImageFallback ? (
+              <div className="w-full h-full bg-[rgb(var(--muted))] rounded-lg flex items-center justify-center text-[rgb(var(--text-muted))]">
+                <FontAwesomeIcon icon={faImage} className="text-3xl" />
+              </div>
+            ) : (
               <img
                 src={preview.image}
                 alt={`Preview for ${article.title}`}
-                className="w-32 h-20 object-cover rounded-lg"
+                className="w-full h-full object-cover rounded-lg"
               />
-            )
-          )}
-          <div className="flex-1">
-            <h4 className="font-semibold text-[rgb(var(--text-primary))] line-clamp-2">
+            )}
+          </div>
+
+          {/* Conteúdo do Artigo */}
+          <div className="flex-1 min-w-0">
+            {' '}
+            {/* Adicionado min-w-0 para ajudar no overflow */}
+            <h4 className="font-semibold text-[rgb(var(--text-primary))] truncate">
               {article.title}
             </h4>
             <p className="text-sm text-[rgb(var(--text-muted))] mt-1 line-clamp-2">
-              {article.summary}
+              {stripHtml(article.summary)}
             </p>
             <p className="text-xs text-gray-500 mt-2">
               {new Date(article.pubDate).toLocaleDateString()}

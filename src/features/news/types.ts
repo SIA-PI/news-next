@@ -23,6 +23,8 @@ export interface CreateFeedRequest {
   name: string;
   url: string;
   interval: string; // e.g. cron expression "0 * * * *"
+  category: string;
+  userId: string;
 }
 
 export interface CreateFeedResponse {
@@ -40,6 +42,17 @@ export interface ListFeedsItem {
   url: string;
   status: 'ACTIVE' | 'PAUSED' | string;
   interval: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  link: string;
+  pubDate: string;
+  summary: string;
+  feedId: string;
   createdAt: string;
   updatedAt: string;
 }
