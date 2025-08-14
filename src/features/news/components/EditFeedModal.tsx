@@ -2,6 +2,14 @@
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
+import { CronIntervals } from '@/enums';
 import { useUpdateFeedMutation } from '@/features/news/mutations/useUpdateFeedMutation.mutation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -71,13 +79,20 @@ export const EditFeedModal = ({
           </div>
           <div>
             <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-              Intervalo (cron)
+              Intervalo
             </label>
-            <Input
-              value={editInterval}
-              onChange={(e) => setEditInterval(e.target.value)}
-              placeholder="0 * * * *"
-            />
+            <Select onValueChange={setEditInterval} value={editInterval}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um intervalo" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(CronIntervals).map(([key, value]) => (
+                  <SelectItem key={value} value={value}>
+                    {key}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-2">

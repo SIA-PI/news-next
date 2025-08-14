@@ -1,10 +1,8 @@
-export type CronExpression = string;
-
 export interface Feed {
   id?: string;
   name: string;
   url: string;
-  interval: CronExpression;
+  interval: string;
   status: 'ACTIVE' | 'PAUSED' | string;
   category: string;
   createdAt: string;

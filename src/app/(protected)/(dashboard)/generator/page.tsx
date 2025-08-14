@@ -36,6 +36,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { BR, PT, US } from 'country-flag-icons/react/3x2';
 import { useSession } from 'next-auth/react'; // Importado para obter o userId
+import { useRouter } from 'next/navigation';
 import { FormEvent, useReducer } from 'react';
 import { toast } from 'sonner';
 
@@ -155,6 +156,7 @@ const templates = {
 };
 
 export default function GeneratorPage() {
+  const router = useRouter()
   const [state, dispatch] = useReducer(generatorReducer, initialState);
   const { data: session } = useSession();
   const {

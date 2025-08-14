@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'; // Importando o componente Select
+import { CronIntervals } from '@/enums';
 import { feedCategories } from '@/constants';
 import { useCreateFeedMutation } from '@/features/news/mutations/useCreateFeedMutation.mutation';
 import { useSession } from 'next-auth/react'; // Importando o hook da sessão
@@ -29,7 +30,7 @@ export const CreateFeedModal = ({
 
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
-  const [interval, setInterval] = useState('0 * * * *');
+  const [interval, setInterval] = useState(Object.values(CronIntervals)[0]);
   const [category, setCategory] = useState(''); // Estado para a nova categoria
   const [isClient, setIsClient] = useState(false);
 
@@ -56,7 +57,7 @@ export const CreateFeedModal = ({
     // Limpar os campos após a criação bem-sucedida
     setName('');
     setUrl('');
-    setInterval('0 * * * *');
+    setInterval(Object.values(CronIntervals)[0]);
     setCategory('');
   };
 
@@ -108,13 +109,20 @@ export const CreateFeedModal = ({
           {/* Campo Intervalo */}
           <div>
             <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
-              Intervalo (cron)
+              Intervalo
             </label>
-            <Input
-              value={interval}
-              onChange={(e) => setInterval(e.target.value)}
-              placeholder="0 * * * *"
-            />
+            <Select onValueChange={setInterval} value={interval}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um intervalo" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(CronIntervals).map(([key, value]) => (
+                  <SelectItem key={value} value={value}>
+                    {key}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-2">

@@ -26,8 +26,8 @@ import UserProfileSkeleton from './UserProfileSkeleton';
 
 const menuItems: MenuItemType[] = [
   { to: '/dashboard', icon: faChartLine, label: 'Dashboard' },
-  { to: '/generator', icon: faPlusCircle, label: 'Gerador RSS', badge: 'dot' },
-  { to: '/feeds', icon: faList, label: 'Meus Feeds', chip: '12' },
+  { to: '/generator', icon: faPlusCircle, label: 'Gerador RSS' },
+  { to: '/feeds', icon: faList, label: 'Meus Feeds' },
   { divider: true },
   { to: '/settings', icon: faCog, label: 'Configurações' },
   { to: '/help', icon: faQuestionCircle, label: 'Ajuda' },
