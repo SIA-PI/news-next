@@ -18,3 +18,8 @@ export interface DecodedToken {
   iat: string;
   exp: string;
 }
+
+export interface ChangePasswordCredentials {
+  username: string;
+  newPassword: string;
+}
