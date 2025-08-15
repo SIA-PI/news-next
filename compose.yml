@@ -1,0 +1,29 @@
+services:
+  sia-news-next:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sia-news-next
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Adicione aqui suas variáveis de ambiente específicas
+      # - NEXT_PUBLIC_BASE_URL=http://localhost:8080
+      # - NEXTAUTH_SECRET=seu-secret-aqui
+      # - NEXTAUTH_URL=http://localhost:3000
+    networks:
+      - sia-net
+    # volumes:
+    #   - ./logs:/app/logs  # Descomente se precisar de logs persistentes
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on: []
+      # se houver outros serviços
