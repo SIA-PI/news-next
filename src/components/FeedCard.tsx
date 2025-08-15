@@ -39,7 +39,7 @@ export default function FeedCard({
             >
               <FontAwesomeIcon icon={icon} className={text} />
             </div>
-            <div>
+            <div onClick={onView} className="cursor-pointer">
               <h4 className="font-semibold text-[rgb(var(--text-primary))]">
                 {title}
               </h4>
