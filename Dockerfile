@@ -11,13 +11,17 @@ WORKDIR /app
 
 # Instalar dependências baseadas no gerenciador de pacotes preferido
 COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable pnpm && pnpm i --frozen-lockfile
+RUN corepack enable pnpm && pnpm config set store-dir /app/.pnpm-store && pnpm i --frozen-lockfile
 
 # Rebuild do código fonte apenas quando necessário
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Variáveis de ambiente necessárias para o build
+ARG NEXT_PUBLIC_BASE_URL
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-https://n8n.sia.pi.gov.br}
 
 # Next.js coleta dados de telemetria completamente anônimos sobre uso geral
 # Saiba mais aqui: https://nextjs.org/telemetry
@@ -31,9 +35,9 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-# Variáveis de ambiente necessárias para o build
-ARG NEXT_PUBLIC_BASE_URL=https://n8n.sia.pi.gov.br
-ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+# Variáveis de ambiente necessárias para o runtime
+ARG NEXT_PUBLIC_BASE_URL
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-https://n8n.sia.pi.gov.br}
 # Descomente a linha seguinte caso você queira desabilitar a telemetria durante o runtime
 # ENV NEXT_TELEMETRY_DISABLED 1
 

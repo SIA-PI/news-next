@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_BASE_URL:"https://n8n.sia.pi.gov.br"
+        - NEXT_PUBLIC_BASE_URL=https://n8n.sia.pi.gov.br
     container_name: sia-news-next
     restart: unless-stopped
     expose:
@@ -27,5 +27,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+      disable: false
     depends_on: []
       # se houver outros serviços
