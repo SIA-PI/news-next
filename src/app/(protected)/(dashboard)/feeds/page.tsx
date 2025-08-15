@@ -2,17 +2,29 @@
 import FeedCard from '@/components/FeedCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { CreateFeedModal } from '@/features/news/components/CreateFeedModal';
+import { EditFeedModal } from '@/features/news/components/EditFeedModal';
+import { useDeleteFeedMutation } from '@/features/news/mutations/useDeleteFeedMutation.mutation';
+import { useUpdateFeedMutation } from '@/features/news/mutations/useUpdateFeedMutation.mutation';
+import { useListFeedsQuery } from '@/features/news/queries/useListFeedsQuery.query';
+import { createFeed } from '@/features/news/services/createFeed';
 import { FeedItemType } from '@/types';
+import { getCronDescription } from '@/lib/utils';
 import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { listFeeds } from '@/features/news/services/listFeeds';
-import { updateFeed } from '@/features/news/services/updateFeed';
-import { deleteFeed } from '@/features/news/services/deleteFeed';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Input } from '@/components/ui/Input';
 
-function mapToFeedItem(feed: { id: string; name?: string; url: string; status: string; createdAt: string; updatedAt: string; interval: string }) : FeedItemType {
+function mapToFeedItem(feed: {
+  id: string;
+  name?: string;
+  url: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  interval: string;
+}): FeedItemType {
   return {
     title: feed.name ?? new URL(feed.url).hostname.replace(/^www\./, ''),
     count: 0,
@@ -25,27 +37,28 @@ function mapToFeedItem(feed: { id: string; name?: string; url: string; status: s
       icon: feed.status === 'ACTIVE' ? faCircle : faPause,
     },
     last: new Date(feed.updatedAt || feed.createdAt).toLocaleString(),
-    webhook: { text: `Intervalo: ${feed.interval}`, cls: 'text-[rgb(var(--text-muted))]' },
+    webhook: {
+      text: `Intervalo: ${getCronDescription(feed.interval)}`,
+      cls: 'text-[rgb(var(--text-muted))]',
+    },
     progress: feed.status === 'ACTIVE',
   };
 }
 
 export default function FeedsPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['feeds', 'list'],
-    queryFn: listFeeds,
-  });
+  const { data, isLoading, isError } = useListFeedsQuery();
+  const updateMutation = useUpdateFeedMutation();
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { name?: string; url?: string; interval?: string; status?: string } }) =>
-      updateFeed(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
-  });
+  const deleteMutation = useDeleteFeedMutation();
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteFeed(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] }),
+  const createMutation = useMutation({
+    mutationFn: createFeed,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] });
+      setIsCreateOpen(false);
+    },
   });
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -53,6 +66,8 @@ export default function FeedsPage() {
   const [editName, setEditName] = useState('');
   const [editUrl, setEditUrl] = useState('');
   const [editInterval, setEditInterval] = useState('');
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const items: FeedItemType[] = (data ?? []).map((f) =>
     mapToFeedItem({
@@ -70,17 +85,19 @@ export default function FeedsPage() {
     <Card className="animate-fade-in">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Meus Feeds RSS</CardTitle>
-        <Button size="sm" asChild>
-          <a href="/generator">
-            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            Novo Feed
-          </a>
+        <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+          Novo Feed
         </Button>
       </CardHeader>
       <CardContent>
-        {isLoading && <div className="text-[rgb(var(--text-muted))]">Carregando...</div>}
+        {isLoading && (
+          <div className="text-[rgb(var(--text-muted)))]">Carregando...</div>
+        )}
         {isError && (
-          <div className="text-red-400">Erro ao carregar feeds. Tente novamente.</div>
+          <div className="text-red-400">
+            Erro ao carregar feeds. Tente novamente.
+          </div>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {(data ?? []).map((f) => {
@@ -97,6 +114,7 @@ export default function FeedsPage() {
               <FeedCard
                 key={f.id}
                 {...item}
+                onView={() => router.push(`/feeds/details/${f.id}`)}
                 onEdit={() => {
                   setEditId(f.id);
                   setEditName(f.name ?? '');
@@ -114,57 +132,17 @@ export default function FeedsPage() {
           })}
         </div>
 
-        {isEditOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-xl bg-[rgb(var(--muted))] border border-[rgb(var(--border))] p-6 shadow-xl">
-              <h3 className="text-lg font-semibold mb-4">Editar Feed</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">Nome</label>
-                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nome do feed" />
-                </div>
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">URL</label>
-                  <Input value={editUrl} onChange={(e) => setEditUrl(e.target.value)} placeholder="https://..." />
-                </div>
-                <div>
-                  <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">Intervalo (cron)</label>
-                  <Input value={editInterval} onChange={(e) => setEditInterval(e.target.value)} placeholder="0 * * * *" />
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsEditOpen(false);
-                    setEditId(null);
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="primary"
-                  disabled={updateMutation.isPending || !editId}
-                  onClick={async () => {
-                    if (!editId) return;
-                    await updateMutation.mutateAsync({
-                      id: editId,
-                      payload: {
-                        name: editName || undefined,
-                        url: editUrl || undefined,
-                        interval: editInterval || undefined,
-                      },
-                    });
-                    setIsEditOpen(false);
-                    setEditId(null);
-                  }}
-                >
-                  Salvar
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <CreateFeedModal isOpen={isCreateOpen} setIsOpen={setIsCreateOpen} />
+
+        <EditFeedModal
+          isOpen={isEditOpen}
+          setIsOpen={setIsEditOpen}
+          feedId={editId}
+          initialName={editName}
+          initialUrl={editUrl}
+          initialInterval={editInterval}
+          setEditId={setEditId}
+        />
       </CardContent>
     </Card>
   );

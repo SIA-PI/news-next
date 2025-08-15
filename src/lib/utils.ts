@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { CronIntervals } from '@/enums';
 
 /**
  * Combina múltiplas classes do Tailwind CSS de forma inteligente.
@@ -12,4 +13,9 @@ import { twMerge } from 'tailwind-merge';
  */
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
+}
+
+export function getCronDescription(cron: string): string {
+  const [key] = Object.entries(CronIntervals).find(([, value]) => value === cron) || [];
+  return key || cron;
 }

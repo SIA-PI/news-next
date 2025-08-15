@@ -11,6 +11,10 @@ export const endpoints = {
       create: () => `${FEEDS_BASE_URL}/feeds`,
       update: (id: string) => `${FEEDS_BASE_URL}/feeds/${id}`,
       delete: (id: string) => `${FEEDS_BASE_URL}/feeds/${id}`,
+      byId: (id: string) => `${FEEDS_BASE_URL}/feeds/${id}`,
     },
+    articles: {
+      list: () => `${FEEDS_BASE_URL}/articles`,
+    }
   },
 };

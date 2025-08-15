@@ -2,13 +2,15 @@
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
+import { PageMetaProvider, usePageMeta } from '@/context/PageMetaContext';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { ReactNode, useEffect, useState } from 'react';
 
 config.autoAddCss = false;
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+function DashboardContent({ children }: { children: ReactNode }) {
+  const { meta } = usePageMeta();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [statusOnline] = useState(true);
 
@@ -44,9 +46,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       )}
 
       <main className="lg:ml-72 min-h-screen">
-        <Header online={statusOnline} />
+        <Header
+          online={statusOnline}
+          title={meta.title}
+          subtitle={meta.subtitle}
+        />
         <div className="p-6">{children}</div>
       </main>
     </div>
+  );
+}
+
+// Layout principal que exportamos
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+    <PageMetaProvider>
+      <DashboardContent>{children}</DashboardContent>
+    </PageMetaProvider>
   );
 }
