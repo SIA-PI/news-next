@@ -16,10 +16,10 @@ export async function GET(request: Request) {
       description: result.ogDescription,
       image: result.ogImage?.[0]?.url,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching Open Graph data:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch preview data', details: error.message },
+      { error: 'Failed to fetch preview data', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

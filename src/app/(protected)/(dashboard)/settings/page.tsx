@@ -40,9 +40,9 @@ export default function SettingsPage() {
         setConfirmPassword('');
         return 'Senha alterada com sucesso!';
       },
-      error: (err: any) => {
+      error: (err: Error | { response?: { data?: { message?: string } } }) => {
         return (
-          err?.response?.data?.message ||
+          ('response' in err ? err.response?.data?.message : undefined) ||
           'Erro ao alterar a senha. Verifique os dados e tente novamente.'
         );
       },

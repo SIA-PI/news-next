@@ -8,17 +8,14 @@ import { useFeedsActiveQuery } from '@/features/metrics/queries/useFeedsActiveQu
 import { useFeedsByCategoryQuery } from '@/features/metrics/queries/useFeedsByCategoryQuery.query';
 import { useUptimeQuery } from '@/features/metrics/queries/useUptimeQuery.query';
 import { useWebhooksQuery } from '@/features/metrics/queries/useWebhooksQuery.query';
-import { ActivityItemType, ChartDataType, StatCardType } from '@/types';
+import { ChartDataType, StatCardType } from '@/types';
 import {
   faCheckCircle,
   faDownload,
   faLink,
-  faPlus,
-  faRobot,
   faRss,
-  faSync,
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import { useSession } from 'next-auth/react';
 import { useEffect, useMemo } from 'react';
 import { Doughnut, Line } from 'react-chartjs-2';
@@ -271,7 +268,7 @@ export default function DashboardPage() {
       toDoughnutData(
         Array.isArray(feedsByCategory.data)
           ? feedsByCategory.data
-          : (feedsByCategory.data as any)?.items,
+          : (feedsByCategory.data as { items?: { category: string; count: number }[] } | undefined)?.items,
       ),
     [feedsByCategory.data],
   );
