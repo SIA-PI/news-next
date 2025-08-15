@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import ogs from 'open-graph-scraper';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -13,11 +12,30 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { result } = await ogs({ url });
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; OpenGraph-Bot/1.0)',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const html = await response.text();
+    
+    // Simple regex extraction for Open Graph data
+    const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"[^>]*>/i);
+    const descriptionMatch = html.match(/<meta\s+property="og:description"\s+content="([^"]*)"[^>]*>/i);
+    const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]*)"[^>]*>/i);
+    
+    // Fallback to regular title if no og:title
+    const fallbackTitleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+
     return NextResponse.json({
-      title: result.ogTitle,
-      description: result.ogDescription,
-      image: result.ogImage?.[0]?.url,
+      title: titleMatch?.[1] || fallbackTitleMatch?.[1] || 'No title',
+      description: descriptionMatch?.[1] || 'No description',
+      image: imageMatch?.[1] || null,
     });
   } catch (error: unknown) {
     console.error('Error fetching Open Graph data:', error);
