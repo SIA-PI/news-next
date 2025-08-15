@@ -20,4 +20,18 @@ if (typeof window !== "undefined") {
     }
     return config;
   });
+
+  api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const { signOut } = await import("next-auth/react");
+
+      if (error.response?.status === 401) {
+        await signOut({ redirect: false });
+        window.location.href = "/signin";
+      }
+
+      return Promise.reject(error);
+    },
+  );
 }

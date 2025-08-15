@@ -399,14 +399,14 @@ export default function GeneratorPage() {
                   </span>
                 )}
               </Button>
-              <Button
+              {/* <Button
                 type="button"
                 onClick={onSave}
                 variant="secondary"
                 size="lg"
               >
                 <FontAwesomeIcon icon={saved ? faCheck : faSave} />
-              </Button>
+              </Button> */}
             </div>
           </form>
 
@@ -418,14 +418,14 @@ export default function GeneratorPage() {
               <div className="space-y-4">
                 <div className="relative">
                   <Input type="text" readOnly value={url} className="pr-24" />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
-                    <button
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-6">
+                    {/* <button
                       onClick={onCopy}
                       className="text-cyan-400 hover:text-cyan-300 p-2"
                       title="Copiar URL"
                     >
                       <FontAwesomeIcon icon={faCopy} />
-                    </button>
+                    </button> */}
                     {/* Botão de salvar/webhook atualizado */}
                     <button
                       onClick={onSaveAndWebhook}
@@ -450,6 +450,7 @@ export default function GeneratorPage() {
                       {sentWebhook === 'idle' && (
                         <FontAwesomeIcon icon={faPaperPlane} />
                       )}
+                      Salvar
                     </button>
                   </div>
                 </div>

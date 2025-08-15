@@ -12,11 +12,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useTheme } from 'next-themes';
 
 export default function Signin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { theme } = useTheme();
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (credentials: LoginCredentials) => login(credentials),
@@ -42,7 +44,13 @@ export default function Signin() {
       <div className="w-full max-w-md animate-fade-in">
         <Card className="glassmorphism-strong">
           <CardHeader className="text-center">
-            <Image src={'/logo-sia.svg'} alt='logo da sia' width={10} height={10} className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full' />
+            <Image
+              src={theme === 'light' ? '/logo-sia-dark.svg' : '/logo-sia.svg'}
+              alt='logo da sia'
+              width={10}
+              height={10}
+              className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full'
+            />
             <CardTitle className="text-2xl font-bold">
               Bem-vindo ao SiaNews
             </CardTitle>
