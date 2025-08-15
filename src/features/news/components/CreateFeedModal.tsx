@@ -111,7 +111,7 @@ export const CreateFeedModal = ({
             <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
               Intervalo
             </label>
-            <Select onValueChange={setInterval} value={interval}>
+            <Select onValueChange={(value) => setInterval(value as CronIntervals)} value={interval}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um intervalo" />
               </SelectTrigger>

@@ -81,7 +81,7 @@ export const EditFeedModal = ({
             <label className="block text-sm text-[rgb(var(--text-muted))] mb-1">
               Intervalo
             </label>
-            <Select onValueChange={setEditInterval} value={editInterval}>
+            <Select onValueChange={(value) => setEditInterval(value)} value={editInterval}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um intervalo" />
               </SelectTrigger>
