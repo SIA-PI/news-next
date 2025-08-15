@@ -2,6 +2,7 @@
 
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from './ui/Card';
 
@@ -71,10 +72,13 @@ export default function ArticleCard({ article }: { article: Article }) {
                 <FontAwesomeIcon icon={faImage} className="text-3xl" />
               </div>
             ) : (
-              <img
-                src={preview.image}
+              <Image
+                src={preview.image || ''}
                 alt={`Preview for ${article.title}`}
                 className="w-full h-full object-cover rounded-lg"
+                width={300}
+                height={200}
+                unoptimized
               />
             )}
           </div>
