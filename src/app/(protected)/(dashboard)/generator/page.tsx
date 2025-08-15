@@ -19,7 +19,7 @@ import {
   faCheck,
   faCheckCircle,
   faCog,
-  faCopy,
+
   faEye,
   faFutbol,
   faGlobe,
@@ -29,7 +29,7 @@ import {
   faMicrochip,
   faPaperPlane,
   faRocket,
-  faSave,
+
   faSearch,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
@@ -168,7 +168,6 @@ export default function GeneratorPage() {
     loading,
     url,
     sentWebhook,
-    saved,
   } = state;
 
   // --- LÓGICA DE CRIAÇÃO ATUALIZADA ---
@@ -223,22 +222,14 @@ export default function GeneratorPage() {
     // A chamada para salvar o feed foi movida para o botão de webhook/salvar
   };
 
-  const onCopy = async () => {
-    if (!url) return;
-    await navigator.clipboard.writeText(url);
-    toast.info('URL copiada para a área de transferência!');
-  };
+
 
   const onSaveAndWebhook = () => {
     if (!url) return;
     handleCreateFeed(url);
   };
 
-  const onSave = () => {
-    if (!topic) return;
-    dispatch({ type: 'SET_SAVED', payload: true });
-    setTimeout(() => dispatch({ type: 'SET_SAVED', payload: false }), 1500);
-  };
+
 
   const handleFieldChange = (field: keyof GeneratorState, value: string) => {
     dispatch({ type: 'SET_FIELD', field, payload: value });

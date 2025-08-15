@@ -17,7 +17,6 @@ type FeedCardProps = FeedItemType & {
 
 export default function FeedCard({
   title,
-  count,
   icon,
   bg,
   text,

@@ -8,7 +8,7 @@ import {
   faList,
   faPlusCircle,
   faQuestionCircle,
-  faRss,
+
   faSignOutAlt,
   faUser,
 } from '@fortawesome/free-solid-svg-icons';

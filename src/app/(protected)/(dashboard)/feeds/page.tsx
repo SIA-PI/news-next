@@ -5,14 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { CreateFeedModal } from '@/features/news/components/CreateFeedModal';
 import { EditFeedModal } from '@/features/news/components/EditFeedModal';
 import { useDeleteFeedMutation } from '@/features/news/mutations/useDeleteFeedMutation.mutation';
-import { useUpdateFeedMutation } from '@/features/news/mutations/useUpdateFeedMutation.mutation';
 import { useListFeedsQuery } from '@/features/news/queries/useListFeedsQuery.query';
-import { createFeed } from '@/features/news/services/createFeed';
 import { FeedItemType } from '@/types';
 import { getCronDescription } from '@/lib/utils';
 import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -47,19 +45,8 @@ function mapToFeedItem(feed: {
 
 export default function FeedsPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { data, isLoading, isError } = useListFeedsQuery();
-  const updateMutation = useUpdateFeedMutation();
-
   const deleteMutation = useDeleteFeedMutation();
-
-  const createMutation = useMutation({
-    mutationFn: createFeed,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['feeds', 'list'] });
-      setIsCreateOpen(false);
-    },
-  });
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -68,18 +55,6 @@ export default function FeedsPage() {
   const [editInterval, setEditInterval] = useState('');
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const items: FeedItemType[] = (data ?? []).map((f) =>
-    mapToFeedItem({
-      id: f.id,
-      name: f.name,
-      url: f.url,
-      status: f.status,
-      createdAt: f.createdAt,
-      updatedAt: f.updatedAt,
-      interval: f.interval,
-    }),
-  );
 
   return (
     <Card className="animate-fade-in">
