@@ -31,6 +31,9 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
+# Variáveis de ambiente necessárias para o build
+ARG NEXT_PUBLIC_BASE_URL=https://n8n.sia.pi.gov.br
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 # Descomente a linha seguinte caso você queira desabilitar a telemetria durante o runtime
 # ENV NEXT_TELEMETRY_DISABLED 1
 

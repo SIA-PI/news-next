@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_BASE_URL:"https://n8n.sia.pi.gov.br"
     container_name: sia-news-next
     restart: unless-stopped
     expose:
@@ -12,9 +14,9 @@ services:
       - PORT=3010
       - HOSTNAME=0.0.0.0
       # Adicione aqui suas variáveis de ambiente específicas
-      # - NEXT_PUBLIC_BASE_URL=http://localhost:8080
-      # - NEXTAUTH_SECRET=seu-secret-aqui
-      # - NEXTAUTH_URL=http://localhost:3010
+      - NEXT_PUBLIC_BASE_URL=https://n8n.sia.pi.gov.br
+      - NEXTAUTH_SECRET=seu-secret-aqui
+      - JWT_SECRET=a8f5f167f44f4964e6c998dee827110c
     networks:
       - sia-net
     # volumes:
