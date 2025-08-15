@@ -2,7 +2,7 @@
 
 @layer base {
   :root {
-    --background: 255 255 255;
+    --background: 230 230 235;
     --foreground: 15 23 42;
     --card: 255 255 255;
     --card-foreground: 15 23 42;

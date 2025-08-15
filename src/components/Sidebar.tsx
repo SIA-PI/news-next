@@ -24,6 +24,7 @@ import {
 } from './ui/DropdownMenu';
 import UserProfileSkeleton from './UserProfileSkeleton';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
 
 const menuItems: MenuItemType[] = [
   { to: '/dashboard', icon: faChartLine, label: 'Dashboard' },
@@ -42,6 +43,7 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const { theme } = useTheme();
 
   return (
     <aside
@@ -51,7 +53,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     >
       <div className="p-6 h-full flex flex-col">
         <div className="flex items-center gap-3 mb-8">
-          <Image src={'/logo-sia.svg'} alt='Logo da sia' width={10} height={10} className='w-12 h-12 flex items-center rounded-full justify-center'/>
+          <Image
+            src={theme === 'light' ? '/logo-sia-dark.svg' : '/logo-sia.svg'}
+            alt='Logo da sia'
+            width={10}
+            height={10}
+            className='w-12 h-12 flex items-center rounded-full justify-center'
+          />
           <div>
             <h1 className="text-xl font-bold bg-clip-text">
               SiaNews
