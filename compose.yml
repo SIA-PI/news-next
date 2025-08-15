@@ -6,21 +6,21 @@ services:
     container_name: sia-news-next
     restart: unless-stopped
     expose:
-      - "3000"
+      - "3010"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3010
       - HOSTNAME=0.0.0.0
       # Adicione aqui suas variáveis de ambiente específicas
       # - NEXT_PUBLIC_BASE_URL=http://localhost:8080
       # - NEXTAUTH_SECRET=seu-secret-aqui
-      # - NEXTAUTH_URL=http://localhost:3000
+      # - NEXTAUTH_URL=http://localhost:3010
     networks:
       - sia-net
     # volumes:
     #   - ./logs:/app/logs  # Descomente se precisar de logs persistentes
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
