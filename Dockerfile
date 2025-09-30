@@ -1,7 +1,7 @@
 # Dockerfile para aplicação Next.js - sia-news-next
 
 # Use a imagem oficial do Node.js baseada em Alpine
-FROM node:18-alpine AS base
+FROM node:23-alpine AS base
 
 # Instalar dependências apenas quando necessário
 FROM base AS deps
