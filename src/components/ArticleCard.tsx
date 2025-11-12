@@ -5,14 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from './ui/Card';
+import type { Article } from '@/features/news/types';
 
-interface Article {
-  id: string;
-  title: string;
-  link: string;
-  summary: string;
-  pubDate: string;
-}
+// Article type now includes optional content, imageUrl, and source
 
 interface PreviewData {
   image?: string;
@@ -33,7 +28,13 @@ export default function ArticleCard({ article }: { article: Article }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPreview = async () => {
+    // Prefer backend-provided imageUrl; fallback to preview API if absent
+    const maybeFetchPreview = async () => {
+      if (article.imageUrl) {
+        setPreview({ image: article.imageUrl });
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       try {
         const response = await fetch(
@@ -53,11 +54,12 @@ export default function ArticleCard({ article }: { article: Article }) {
       }
     };
 
-    fetchPreview();
-  }, [article.link]);
+    maybeFetchPreview();
+  }, [article.link, article.imageUrl]);
 
   // Verifica se a imagem é um favicon ou não existe para decidir se deve mostrar o fallback.
-  const showImageFallback = !preview?.image || preview.image.includes('favicon');
+  const imageSrc = preview?.image || article.imageUrl || '';
+  const showImageFallback = !imageSrc || imageSrc.includes('favicon');
 
   return (
     <a href={article.link} target="_blank" rel="noopener noreferrer">
@@ -73,7 +75,7 @@ export default function ArticleCard({ article }: { article: Article }) {
               </div>
             ) : (
               <Image
-                src={preview.image || ''}
+                src={imageSrc}
                 alt={`Preview for ${article.title}`}
                 className="w-full h-full object-cover rounded-lg"
                 width={300}
@@ -94,7 +96,8 @@ export default function ArticleCard({ article }: { article: Article }) {
               {stripHtml(article.summary)}
             </p>
             <p className="text-xs text-gray-500 mt-2">
-              {new Date(article.pubDate).toLocaleDateString()}
+              {new Date(article.pubDate).toISOString()}
+              {article.source ? ` • ${article.source}` : ''}
             </p>
           </div>
         </CardContent>
