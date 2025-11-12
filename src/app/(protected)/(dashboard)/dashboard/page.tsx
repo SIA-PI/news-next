@@ -2,6 +2,7 @@
 
 import StatCard from '@/components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { useArticlesByDayQuery } from '@/features/metrics/queries/useArticlesByDayQuery.query';
 import { useArticlesTodayQuery } from '@/features/metrics/queries/useArticlesTodayQuery.query';
 import { useFeedsActiveQuery } from '@/features/metrics/queries/useFeedsActiveQuery.query';
@@ -14,10 +15,12 @@ import {
   faDownload,
   faLink,
   faRss,
+  faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Doughnut, Line } from 'react-chartjs-2';
 
 import {
@@ -185,6 +188,7 @@ const doughnutChartOptions: ChartOptions<'doughnut'> = {
 };
 
 export default function DashboardPage() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
       document.querySelectorAll('.stat-card').forEach((card, index) => {
@@ -209,6 +213,22 @@ export default function DashboardPage() {
   const feedsByCategory = useFeedsByCategoryQuery(isAuthed);
 
   const articlesByDay = useArticlesByDayQuery(isAuthed);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.allSettled([
+        feedsActive.refetch(),
+        articlesToday.refetch(),
+        webhooks.refetch(),
+        uptime.refetch(),
+        feedsByCategory.refetch(),
+        articlesByDay.refetch(),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const statCards: StatCardType[] = useMemo(() => {
     const uptimePct = (() => {
@@ -275,6 +295,21 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
+      <div className="flex justify-end">
+        <Button size="sm" variant="ghost" onClick={handleRefresh} disabled={isRefreshing}>
+          {isRefreshing ? (
+            <span className="inline-flex items-center">
+              <FontAwesomeIcon icon={faRotateRight} className="mr-2 animate-spin" />
+              Atualizando
+            </span>
+          ) : (
+            <span className="inline-flex items-center">
+              <FontAwesomeIcon icon={faRotateRight} className="mr-2" />
+              Atualizar
+            </span>
+          )}
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card) => (
           <StatCard key={card.label} {...card} />

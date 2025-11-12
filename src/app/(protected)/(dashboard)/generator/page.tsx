@@ -48,6 +48,9 @@ interface GeneratorState {
   country: string;
   language: string;
   period: string;
+  afterDate?: string;
+  beforeDate?: string;
+  sourceSite?: string;
   category: string; // Novo campo
   loading: boolean;
   url: string;
@@ -60,6 +63,9 @@ const initialState: GeneratorState = {
   country: 'BR',
   language: 'pt-BR',
   period: 'all',
+  afterDate: '',
+  beforeDate: '',
+  sourceSite: '',
   category: '', // Novo campo
   loading: false,
   url: '',
@@ -106,10 +112,16 @@ function generateRssUrl(
   country: string,
   language: string,
   period = '',
+  opts?: { afterDate?: string; beforeDate?: string; sourceSite?: string }
 ): string {
-  let url = `https://news.google.com/rss/search?q=${encodeURIComponent(
-    topic,
-  )}&hl=${language}&gl=${country}&ceid=${country}:${language}`;
+  const parts: string[] = [];
+  if (topic) parts.push(topic);
+  if (opts?.sourceSite) parts.push(`site:${opts.sourceSite}`);
+  if (opts?.afterDate) parts.push(`after:${opts.afterDate}`);
+  if (opts?.beforeDate) parts.push(`before:${opts.beforeDate}`);
+
+  const q = encodeURIComponent(parts.join(' '));
+  let url = `https://news.google.com/rss/search?q=${q}&hl=${language}&gl=${country}&ceid=${country}:${language}`;
   if (period && period !== 'all') {
     url += `&when=${period}`;
   }
@@ -164,6 +176,9 @@ export default function GeneratorPage() {
     country,
     language,
     period,
+    afterDate,
+    beforeDate,
+    sourceSite,
     category,
     loading,
     url,
@@ -216,7 +231,11 @@ export default function GeneratorPage() {
     }
     dispatch({ type: 'GENERATE_START' });
     await new Promise((r) => setTimeout(r, 800));
-    const newUrl = generateRssUrl(topic, country, language, period);
+    const newUrl = generateRssUrl(topic, country, language, period, {
+      afterDate,
+      beforeDate,
+      sourceSite,
+    });
     dispatch({ type: 'GENERATE_SUCCESS', payload: newUrl });
 
     // A chamada para salvar o feed foi movida para o botão de webhook/salvar
@@ -366,11 +385,54 @@ export default function GeneratorPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="h">Última hora</SelectItem>
-                    <SelectItem value="d">Últimas 24h</SelectItem>
-                    <SelectItem value="w">Última semana</SelectItem>
+                    <SelectItem value="1h">Última hora</SelectItem>
+                    <SelectItem value="1d">Últimas 24h</SelectItem>
+                    <SelectItem value="7d">Última semana</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            {/* Filtros Avançados */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Fonte específica */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faGlobe} className="text-cyan-400" />{' '}
+                  Fonte (site:)
+                </label>
+                <Input
+                  value={sourceSite ?? ''}
+                  onChange={(e) => handleFieldChange('sourceSite', e.target.value)}
+                  type="text"
+                  placeholder="Ex: reuters.com"
+                />
+              </div>
+              {/* Data inicial (after) */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faCalendar} className="text-orange-400" />{' '}
+                  Data inicial (after)
+                </label>
+                <Input
+                  value={afterDate ?? ''}
+                  onChange={(e) => handleFieldChange('afterDate', e.target.value)}
+                  type="date"
+                  placeholder="YYYY-MM-DD"
+                />
+              </div>
+              {/* Data final (before) */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faCalendar} className="text-orange-400" />{' '}
+                  Data final (before)
+                </label>
+                <Input
+                  value={beforeDate ?? ''}
+                  onChange={(e) => handleFieldChange('beforeDate', e.target.value)}
+                  type="date"
+                  placeholder="YYYY-MM-DD"
+                />
               </div>
             </div>
 
