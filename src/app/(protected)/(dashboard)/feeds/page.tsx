@@ -8,8 +8,10 @@ import { useDeleteFeedMutation } from '@/features/news/mutations/useDeleteFeedMu
 import { useListFeedsQuery } from '@/features/news/queries/useListFeedsQuery.query';
 import { FeedItemType } from '@/types';
 import { getCronDescription } from '@/lib/utils';
-import { faCircle, faPause, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faPause, faPlus, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { api } from '@/lib/http-client';
+import { endpoints } from '@/features/news/endpoints';
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -45,7 +47,7 @@ function mapToFeedItem(feed: {
 
 export default function FeedsPage() {
   const router = useRouter();
-  const { data, isLoading, isError } = useListFeedsQuery();
+  const { data, isLoading, isError, refetch } = useListFeedsQuery();
   const deleteMutation = useDeleteFeedMutation();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -55,15 +57,42 @@ export default function FeedsPage() {
   const [editInterval, setEditInterval] = useState('');
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshAll = async () => {
+    setIsRefreshing(true);
+    try {
+      const ids = (data ?? []).map((f) => f.id);
+      await Promise.allSettled(ids.map((id) => api.post(endpoints.news.feeds.refresh(id))));
+      await refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <Card className="animate-fade-in">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Meus Feeds RSS</CardTitle>
-        <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-          <FontAwesomeIcon icon={faPlus} className="mr-2" />
-          Novo Feed
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={handleRefreshAll} disabled={isRefreshing}>
+            {isRefreshing ? (
+              <span className="inline-flex items-center">
+                <FontAwesomeIcon icon={faRotateRight} className="mr-2 animate-spin" />
+                Atualizando
+              </span>
+            ) : (
+              <span className="inline-flex items-center">
+                <FontAwesomeIcon icon={faRotateRight} className="mr-2" />
+                Atualizar
+              </span>
+            )}
+          </Button>
+          <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+            <FontAwesomeIcon icon={faPlus} className="mr-2" />
+            Novo Feed
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading && (
