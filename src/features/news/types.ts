@@ -50,6 +50,9 @@ export interface Article {
   link: string;
   pubDate: string;
   summary: string;
+  content?: string | null;
+  imageUrl?: string | null;
+  source?: string | null;
   feedId: string;
   createdAt: string;
   updatedAt: string;
