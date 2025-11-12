@@ -12,10 +12,16 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { api } from '@/lib/http-client';
+import { endpoints } from '@/features/auth/endpoints';
 
 export default function Signin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isForgotPending, setIsForgotPending] = useState(false);
   const router = useRouter();
   const { theme } = useTheme();
 
@@ -83,15 +89,50 @@ export default function Signin() {
                 >
                   Senha
                 </label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={isPending}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isPending}
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))]"
+                    onClick={() => setShowPassword((v) => !v)}
+                    disabled={isPending}
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
+                <div className="mt-2 text-right">
+                  <button
+                    type="button"
+                    className="text-sm text-blue-600 hover:underline disabled:opacity-50"
+                    disabled={isForgotPending || isPending}
+                    onClick={async () => {
+                      if (!username) {
+                        toast.error('Informe o usuário para recuperar a senha');
+                        return;
+                      }
+                      try {
+                        setIsForgotPending(true);
+                        await api.post(endpoints.auth.forgotPassword(), { username });
+                        toast.success('Pedido enviado. Aguarde aprovação para receber o link.');
+                      } catch (e) {
+                        toast.error('Não foi possível enviar o pedido.');
+                      } finally {
+                        setIsForgotPending(false);
+                      }
+                    }}
+                  >
+                    Esqueci a senha
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"
