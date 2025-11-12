@@ -36,10 +36,7 @@ export default function Signin() {
 
     toast.promise(promise, {
       loading: 'Verificando credenciais...',
-      success: () => {
-        router.push('/dashboard');
-        return 'Login bem-sucedido! Redirecionando...';
-      },
+      success: () => 'Login bem-sucedido! Redirecionando...',
       error: (error) => error.message,
     });
   };
